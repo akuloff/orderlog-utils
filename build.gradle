@@ -16,9 +16,11 @@ repositories {
 
 dependencies {
     compile group: 'org.agrona', name: 'agrona', version: '0.9.16'
-    compile group: 'com.alex09x.qscalp', name: 'qsh2data', version: '0.1-SNAPSHOT'
+    compile group: 'com.alex09x.qscalp', name: 'qsh2data', version: '0.2-SNAPSHOT'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.5'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
+    compile group: 'args4j', name: 'args4j', version: '2.33'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
 
     // Logging
     compile 'org.slf4j:slf4j-log4j12:1.7.7'

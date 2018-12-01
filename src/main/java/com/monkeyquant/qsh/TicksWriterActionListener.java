@@ -1,33 +1,23 @@
 package com.monkeyquant.qsh;
 
-import com.monkeyquant.qsh.model.IMarketActionListener;
-import com.monkeyquant.qsh.model.TickData;
+import com.monkeyquant.jte.primitives.interfaces.ITickData;
+import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 @Log4j
-public class TicksWriterActionListener implements IMarketActionListener {
-  private final FileWriter writer;
-  private SimpleDateFormat formatter;
-  private final Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+3"));
-
+public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
   public TicksWriterActionListener(FileWriter writer, String dateFormat) {
-    this.writer = writer;
-    formatter = new SimpleDateFormat(dateFormat);
-    formatter.setCalendar(calendar);
-    formatter.setTimeZone(calendar.getTimeZone());
+    super(writer, dateFormat);
   }
 
   @Override
-  public void onNewTick(TickData tickData) {
+  public void onNewTick(TickDataEvent tickDataEvent) {
     try {
-      writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickData.getTime()), tickData.getPrice(), tickData.getVolume(), tickData.getDealId()));
+      ITickData tickData = tickDataEvent.getTickData();
+      writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickDataEvent.getTime()), tickData.getPrice(), tickData.getAmount(), tickData.getTradeId()));
     } catch (IOException e) {
       log.error("write exception", e);
     }

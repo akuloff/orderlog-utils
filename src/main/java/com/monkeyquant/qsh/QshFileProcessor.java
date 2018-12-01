@@ -2,9 +2,9 @@ package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.QshReaderFactory;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
-import com.monkeyquant.qsh.model.BookState;
+import com.monkeyquant.jte.primitives.history.PriceRecord;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
-import com.monkeyquant.qsh.model.PriceRecord;
+import com.monkeyquant.qsh.model.MapBookState;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
@@ -68,7 +68,7 @@ public class QshFileProcessor {
         formatter.setCalendar(cal);
         formatter.setTimeZone(cal.getTimeZone());
 
-        BookState bstate = null;
+        MapBookState bstate = null;
 
         reader1 = rfactory1.openPath(fpath);
         if ( reader1.hasNext() ) {

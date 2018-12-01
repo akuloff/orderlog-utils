@@ -5,7 +5,7 @@ import com.alex09x.qsh.reader.type.OrdersLogRecord;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class OrdersProcessorDebugStats extends OrdersProcessorHashMap {
+public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
     @Getter
     @Setter
     private java.sql.Timestamp beginTime, endTime;

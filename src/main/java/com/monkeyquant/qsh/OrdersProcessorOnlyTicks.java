@@ -1,9 +1,11 @@
 package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
+import com.monkeyquant.jte.primitives.history.HistoryTick;
+import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
-import com.monkeyquant.qsh.model.TickData;
+import com.monkeyquant.qsh.model.TickDataEvent;
 
 /**
  * передает только событие onNewTick, не содержит bookState
@@ -29,15 +31,14 @@ public class OrdersProcessorOnlyTicks implements IOrdersProcessor{
                 if (!rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
                   && rec.getDealId() != lastDealId
                 ) {
-                    TickData tickData = TickData.builder()
-                      .dealType(Utils.fromQshTypeReverse(rec.getType()))
+                    ITickData tickData = HistoryTick.builder()
+                      .buyFlag(Utils.buyFlagFromDealType(Utils.fromQshTypeReverse(rec.getType())))
                       .price(rec.getOrderPrice())
-                      .volume(rec.getVolume())
-                      .time(rec.getTime())
-                      .dealId(rec.getDealId())
+                      .amount(rec.getVolume())
+                      .date(rec.getTime())
+                      .tradeID(String.valueOf(rec.getDealId()))
                       .build();
-
-                    marketActionListener.onNewTick(tickData);
+                    marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(rec.getTime()).build());
                     lastDealId = rec.getDealId();
                 }
             }

@@ -1,11 +1,10 @@
 package com.monkeyquant.qsh;
 
+import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.IMarketActionListener;
-import com.monkeyquant.qsh.model.TickData;
+import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.sql.Timestamp;
 
 @ToString
 public class StatsMarketActionListener implements IMarketActionListener {
@@ -17,12 +16,12 @@ public class StatsMarketActionListener implements IMarketActionListener {
   private long totalTicks = 0;
 
   @Override
-  public void onBookChange(Timestamp time) {
+  public void onBookChange(BookStateEvent bookStateEvent) {
     totalBookStates ++;
   }
 
   @Override
-  public void onNewTick(TickData tickData) {
+  public void onNewTick(TickDataEvent tickData) {
     totalTicks ++;
   }
 }

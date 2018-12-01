@@ -17,7 +17,7 @@ public class FileLoaderTest {
     Iterator<OrdersLogRecord> reader = readerFactory.openPath(fpath);
     OrdersLogRecord rec;
     IMarketActionListener stats = new StatsMarketActionListener();
-    IOrdersProcessor processor = new OrdersProcessorHashMap(stats);
+    IOrdersProcessor processor = new OrdersProcessorBookMap(stats);
 
     long trans = 0, totalRead = 0;
     while ( reader.hasNext() ) {
@@ -32,10 +32,9 @@ public class FileLoaderTest {
     System.out.println("totalRead = " + totalRead);
 
     System.out.println("market stats: " + stats.toString());
-    //System.out.println("processor map size: " + processor.getMapSize());
-    System.out.println("buy size: " + processor.getBookState().getBuySize() + " |sell size: " + processor.getBookState().getSellSize());
-
-    System.out.println("bstate counters, put: " + processor.getBookState().getPutCount() + " |set: " + processor.getBookState().getSetCount() + " |remove: " + processor.getBookState().getRemoveCount());
+//    System.out.println("processor map size: " + processor.getMapSize());
+//    System.out.println("buy size: " + processor.getBookState().getBuySize() + " |sell size: " + processor.getBookState().getSellSize());
+//    System.out.println("bstate counters, put: " + processor.getBookState().getPutCount() + " |set: " + processor.getBookState().getSetCount() + " |remove: " + processor.getBookState().getRemoveCount());
 
     //Utils.printBookState(processor.getBookState(), 2);
 

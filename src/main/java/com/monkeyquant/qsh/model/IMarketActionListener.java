@@ -1,6 +1,6 @@
 package com.monkeyquant.qsh.model;
 
 public interface IMarketActionListener {
-  default void onBookChange(java.sql.Timestamp time){};
-  default void onNewTick(TickData tickData){};
+  default void onBookChange(BookStateEvent bookStateEvent){};
+  default void onNewTick(TickDataEvent tickDataEvent){};
 }

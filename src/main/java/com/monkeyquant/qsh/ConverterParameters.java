@@ -25,4 +25,7 @@ class ConverterParameters {
   @Option(name = "-timeFormat", usage = "time and date format")
   private String timeFormat;
 
+  @Option(name = "-timeQuant", usage = "time quant in msec")
+  private Integer timeQuant;
+
 }

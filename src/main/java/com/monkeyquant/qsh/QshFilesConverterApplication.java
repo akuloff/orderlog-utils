@@ -32,15 +32,18 @@ public class QshFilesConverterApplication {
     ConverterParameters converterParameters = new ConverterParameters();
     CmdLineParser parser = new CmdLineParser(converterParameters);
 
+
     try {
+      long startTime = System.currentTimeMillis();
+
       parser.parseArgument(args);
       String dateFormat = converterParameters.getTimeFormat();
+      if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+        dateFormat = "yyyy.MM.dd HH:mm:ss.SSS";
+      }
       outFileName = converterParameters.getOutputFile();
 
-      if (converterParameters.getOutputFileType().equals(OutputFileType.TICKS)) {
-        if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
-          dateFormat = "yyyy.MM.dd HH:mm:ss.SSS";
-        }
+      if (OutputFileType.TICKS.equals(converterParameters.getOutputFileType())) {
 
         if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
           outFileName = converterParameters.getInputFile() + "_ticks.csv";
@@ -56,11 +59,31 @@ public class QshFilesConverterApplication {
           log.error("file write error", e);
         }
 
+      } else if (OutputFileType.BOOKSTATE.equals(converterParameters.getOutputFileType())) {
+
+        if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
+          outFileName = converterParameters.getInputFile() + "_book.csv";
+        }
+        try {
+          writer = new FileWriter(outFileName, true);
+          writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+          Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant)), converterParameters.getInputFile());
+          writer.flush();
+          writer.close();
+        } catch(IOException e) {
+          log.error("file write error", e);
+        }
       }
+
+      System.out.println("processingTime: " + (System.currentTimeMillis() - startTime));
+
     } catch (CmdLineException e) {
       System.err.println(e.getMessage());
       parser.printUsage(System.err);
     }
+
+
   }
 
 }

@@ -1,4 +1,4 @@
-group 'monkeyquant'
+group 'com.monkeyquant'
 version '1.0.0-snapshot'
 
 apply plugin: 'java'
@@ -15,6 +15,8 @@ repositories {
 }
 
 dependencies {
+    compile group: 'com.monkeyquant', name: 'jte.primitives', version: '0.0.5-snapshot'
+
     compile group: 'org.agrona', name: 'agrona', version: '0.9.16'
     compile group: 'com.alex09x.qscalp', name: 'qsh2data', version: '0.2-SNAPSHOT'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.5'

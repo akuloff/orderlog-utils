@@ -2,10 +2,10 @@ package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.type.DealType;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
-import com.monkeyquant.qsh.model.IBookState;
+import com.monkeyquant.jte.primitives.history.PriceRecord;
+import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.MarketDealType;
-import com.monkeyquant.qsh.model.PriceRecord;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -169,6 +169,16 @@ public class Utils {
       default:
         return MarketDealType.UNKNOWN;
     }
+  }
+
+  public static Boolean buyFlagFromDealType(MarketDealType marketDealType){
+    Boolean buyflag = null;
+    if (marketDealType.equals(MarketDealType.BUY)) {
+      buyflag = true;
+    } else if (marketDealType.equals(MarketDealType.SELL)) {
+      buyflag = false;
+    }
+    return buyflag;
   }
 
 

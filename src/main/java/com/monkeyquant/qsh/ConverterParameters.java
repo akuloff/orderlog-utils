@@ -4,6 +4,7 @@ import com.monkeyquant.qsh.model.BarPeriod;
 import com.monkeyquant.qsh.model.OutputFileType;
 import lombok.Getter;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.BooleanOptionHandler;
 
 @Getter
 class ConverterParameters {
@@ -27,5 +28,8 @@ class ConverterParameters {
 
   @Option(name = "-timeQuant", usage = "time quant in msec")
   private Integer timeQuant;
+
+  @Option(name = "-mqltick", handler = BooleanOptionHandler.class, usage = "use MQL tick file format")
+  private Boolean mqlTick = false;
 
 }

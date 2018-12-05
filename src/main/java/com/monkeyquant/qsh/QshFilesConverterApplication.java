@@ -60,15 +60,18 @@ public class QshFilesConverterApplication {
         }
 
       } else if (OutputFileType.BOOKSTATE.equals(converterParameters.getOutputFileType())) {
-
         if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
           outFileName = converterParameters.getInputFile() + "_book.csv";
         }
         try {
           writer = new FileWriter(outFileName, true);
-          writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+          if (!converterParameters.getMqlTick()) {
+            writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+          } else {
+            writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+          }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
-          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant)), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getMqlTick())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {

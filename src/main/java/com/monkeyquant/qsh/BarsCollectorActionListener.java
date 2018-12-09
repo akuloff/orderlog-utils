@@ -1,6 +1,7 @@
 package com.monkeyquant.qsh;
 
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
+import com.monkeyquant.jte.primitives.model.TradePeriod;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.log4j.Log4j;
 
@@ -9,12 +10,14 @@ import java.io.IOException;
 import java.sql.Timestamp;
 
 @Log4j
-public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
+public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private final boolean useMql;
+  private final TradePeriod period;
 
-  public TicksWriterActionListener(FileWriter writer, String dateFormat, boolean useMql) {
+  public BarsCollectorActionListener(FileWriter writer, String dateFormat, boolean useMql, TradePeriod period) {
     super(writer, dateFormat);
     this.useMql = useMql;
+    this.period = period;
   }
 
   @Override

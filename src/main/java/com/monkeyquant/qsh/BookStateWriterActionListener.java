@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -17,8 +16,6 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
   private final boolean mqlTick;
   private PriceRecord lastAsk = PriceRecord.builder().price(0d).value(0).build();
   private PriceRecord lastBid = PriceRecord.builder().price(0d).value(0).build();
-  private SimpleDateFormat mqlDateFormat = null;
-  private SimpleDateFormat mqlTimeFormat = null;
 
   private long lastQuant = 0;
 
@@ -26,14 +23,6 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
     super(writer, dateFormat);
     this.timeQuantMsec = timeQuant != null ? timeQuant : 0;
     this.mqlTick = mqlTick;
-    if (mqlTick) {
-      mqlDateFormat = new SimpleDateFormat("yyyy.MM.dd");
-      mqlDateFormat.setCalendar(calendar);
-      mqlDateFormat.setTimeZone(calendar.getTimeZone());
-      mqlTimeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-      mqlTimeFormat.setCalendar(calendar);
-      mqlTimeFormat.setTimeZone(calendar.getTimeZone());
-    }
   }
 
   @Override
@@ -61,7 +50,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
         if (doWrite && (!ask.equals(lastAsk) || !bid.equals(lastBid))) {
           String outs;
           if (mqlTick) {
-            outs = String.format("%s;%s;%s;%s;0;0\n", mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), bid.getPrice(), ask.getPrice());
+            outs = String.format("%s;%s;%s;%s;%s;1\n", mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), bid.getPrice(), ask.getPrice(), ask.getPrice());
           } else {
             outs = String.format("%s;%s;%s;%s;%s;%s\n", bookState.getInstrument().getCode(), formatter.format(eventDate), ask.getPrice(), ask.getValue(), bid.getPrice(), bid.getValue());
           }

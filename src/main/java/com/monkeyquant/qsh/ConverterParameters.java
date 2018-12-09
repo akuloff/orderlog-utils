@@ -17,7 +17,7 @@ class ConverterParameters {
   @Option(name = "-type", usage = "output file type", required = true)
   private OutputFileType outputFileType;
 
-  @Option(name = "-period", usage = "period for BARS file type")
+  @Option(name = "-period", usage = "period for BARS file type", depends = {"-type=BARS"})
   private BarPeriod barPeriod;
 
   @Option(name = "-usebookstate", usage = "use book states for bars collect instead of ticks")
@@ -29,7 +29,7 @@ class ConverterParameters {
   @Option(name = "-timeQuant", usage = "time quant in msec")
   private Integer timeQuant;
 
-  @Option(name = "-mqltick", handler = BooleanOptionHandler.class, usage = "use MQL tick file format")
-  private Boolean mqlTick = false;
+  @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")
+  private Boolean useMql = false;
 
 }

@@ -2,6 +2,7 @@ package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.QshReaderFactory;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
+import com.monkeyquant.jte.primitives.model.TradePeriod;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.OutputFileType;
 import lombok.extern.log4j.Log4j;
@@ -32,7 +33,6 @@ public class QshFilesConverterApplication {
     ConverterParameters converterParameters = new ConverterParameters();
     CmdLineParser parser = new CmdLineParser(converterParameters);
 
-
     try {
       long startTime = System.currentTimeMillis();
 
@@ -51,8 +51,13 @@ public class QshFilesConverterApplication {
 
         try {
           writer = new FileWriter(outFileName, true);
-          writer.write("symbol;time;price;volume;deal_id\n");
-          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat)), converterParameters.getInputFile());
+          if (converterParameters.getUseMql()) {
+            writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+          } else {
+            writer.write("symbol;time;price;volume;deal_id\n");
+          }
+
+          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getUseMql())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
@@ -65,19 +70,43 @@ public class QshFilesConverterApplication {
         }
         try {
           writer = new FileWriter(outFileName, true);
-          if (!converterParameters.getMqlTick()) {
-            writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
-          } else {
+          if (converterParameters.getUseMql()) {
             writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+          } else {
+            writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
-          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getMqlTick())), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getUseMql())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
           log.error("file write error", e);
         }
+
+      } else if (OutputFileType.BARS.equals(converterParameters.getOutputFileType())) {
+
+        if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
+          outFileName = converterParameters.getInputFile() + "_bars.csv";
+        }
+
+        TradePeriod period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
+
+        try {
+          writer = new FileWriter(outFileName, true);
+          if (converterParameters.getUseMql()) {
+            writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
+          } else {
+            writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+          }
+          processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(writer, dateFormat, converterParameters.getUseMql(), period)), converterParameters.getInputFile());
+          writer.flush();
+          writer.close();
+        } catch(IOException e) {
+          log.error("file write error", e);
+        }
+
       }
+
 
       System.out.println("processingTime: " + (System.currentTimeMillis() - startTime));
 

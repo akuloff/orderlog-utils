@@ -154,7 +154,7 @@ public class QshFileProcessor {
             cur_msec += msec_quant;
 
             if(totalRead % bufSize == 0 && bstate != null) {
-//                System.out.println("  readed ... " + totalRead + " |sells: " + bstate.getSellPositions().size() + " |buys: " + bstate.getBuyPositions().size() + " |time: " + formatter.format(cal.getTime()));
+//                System.out.println("  readed ... " + totalRead + " |sells: " + bstate.getSellPositions().size() + " |buys: " + bstate.getBuyPositions().size() + " |time: " + dateFormat.format(cal.getTime()));
 //                testPrintBook(bstate, 10);
 
                 PriceRecord ask, bid;
@@ -255,7 +255,7 @@ public class QshFileProcessor {
                         cal.setTimeInMillis(rec1.getTime().getTime());
                     }
                     //cal_time = cal_time + cal.get(Calendar.HOUR_OF_DAY) + ":" + cal.get(Calendar.MINUTE);
-                    //System.out.println("i: " + i +  "\t" + rec1.getSymbol() + "\t\t" + time1 + "\t" + "r_cnt: " + r_cnt + "\t\t" + cur_msec + "\t" +  formatter.format(cal.getTime()) + "\t" + "\t" + ord_proc1.getBestAsk()[0] + "\t" + ord_proc1.getBestBid()[0] + "\t" + cal_time);
+                    //System.out.println("i: " + i +  "\t" + rec1.getSymbol() + "\t\t" + time1 + "\t" + "r_cnt: " + r_cnt + "\t\t" + cur_msec + "\t" +  dateFormat.format(cal.getTime()) + "\t" + "\t" + ord_proc1.getBestAsk()[0] + "\t" + ord_proc1.getBestBid()[0] + "\t" + cal_time);
 
                     PriceRecord b_ask, b_bid;
 
@@ -286,7 +286,7 @@ public class QshFileProcessor {
                             } else {
                                 outs = rec1.getSymbol();
                             }
-                            //outs = outs + ";" + period + ";" + formatter.format(cal.getTime()) + ";" + bd1 + ";" + bd2 + ";" + b_ask.getValue() + ";" + b_bid.getValue();
+                            //outs = outs + ";" + period + ";" + dateFormat.format(cal.getTime()) + ";" + bd1 + ";" + bd2 + ";" + b_ask.getValue() + ";" + b_bid.getValue();
                             //System.out.println(outs);
                             writer.write(outs + "\n");
                             total_out ++;

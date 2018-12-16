@@ -19,8 +19,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
 
   private long lastQuant = 0;
 
-  public BookStateWriterActionListener(FileWriter writer, String dateFormat, Integer timeQuant, boolean mqlTick, int scale, int startTime, int endTime) {
-    super(writer, dateFormat, scale, startTime, endTime);
+  public BookStateWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, Integer timeQuant, boolean mqlTick, int scale, int startTime, int endTime) {
+    super(writer, dateFormat, timeFormat, scale, startTime, endTime);
     this.timeQuantMsec = timeQuant != null ? timeQuant : 0;
     this.mqlTick = mqlTick;
   }
@@ -28,7 +28,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
   @Override
   public void onBookChange(BookStateEvent bookStateEvent) {
     try {
-      //writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickData.getTime()), tickData.getPrice(), tickData.getVolume(), tickData.getDealId()));
+      //writer.write(String.format("%s;%s;%s;%s\n", dateFormat.format(tickData.getTime()), tickData.getPrice(), tickData.getVolume(), tickData.getDealId()));
       IBookState bookState = bookStateEvent.getBookState();
       List<PriceRecord> askPrices = bookState.getAskPositionsForVolume(1);
       List<PriceRecord> bidPrices = bookState.getBidPositionsForVolume(1);
@@ -53,7 +53,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
           if (mqlTick) {
             outs = String.format("%s;%s;%s;%s;%s;1\n", mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), summFormat(bid.getPrice()), summFormat(ask.getPrice()), summFormat(ask.getPrice()));
           } else {
-            outs = String.format("%s;%s;%s;%s;%s;%s\n", bookState.getInstrument().getCode(), formatter.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
+            outs = String.format("%s;%s;%s;%s;%s;%s\n", bookState.getInstrument().getCode(), dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
           }
           //outs = "symbol;time;ask;bid;askvol;bidvol\n";
           writer.write(outs);

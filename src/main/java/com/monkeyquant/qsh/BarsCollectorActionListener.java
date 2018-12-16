@@ -8,27 +8,31 @@ import com.monkeyquant.jte.primitives.interfaces.IBarData;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
+import com.monkeyquant.qsh.application.TimeOfBar;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Log4j
 public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private final boolean useMql;
   private final BarsSaver barsSaver;
   private final boolean useBookState;
+  private final TimeOfBar timeOfBar;
 
   private double lastAsk = 0, lastBid = 0;
 
-  public BarsCollectorActionListener(FileWriter writer, String dateFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime) {
-    super(writer, dateFormat, scale, startTime, endTime);
+  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar) {
+    super(writer, dateFormat, timeFormat, scale, startTime, endTime);
     this.useMql = useMql;
     this.useBookState = useBookState;
     this.barsSaver = new BarsSaver(new BarsCollector(period));
     this.barsSaver.setFillGaps(!useBookState);
+    this.timeOfBar = timeOfBar;
   }
 
   private void processTickData(Timestamp tickTime, ITickData tickData, int spread) throws Exception {
@@ -41,10 +45,17 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
       if (isBarAdded) {
         IBarData barData = barsSaver.getCollector().getBarsList().get(barsSaver.getCollector().getBarsList().size() - 1);
 
+        Date barDate;
+        if (timeOfBar.equals(TimeOfBar.close)) {
+          barDate = barData.getCloseDate();
+        } else {
+          barDate = barData.getOpenDate();
+        }
+
         if (useMql) {
           writer.write(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s\n",
-            mqlDateFormat.format(barData.getOpenDate()),
-            mqlTimeFormat.format(barData.getOpenDate()),
+            mqlDateFormat.format(barDate),
+            mqlTimeFormat.format(barDate),
             summFormat(barData.getOpenPrice()),   //open
             summFormat(barData.getHighPrice()),   //high
             summFormat(barData.getLowPrice()),    //low
@@ -54,15 +65,28 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
             spread
           ));
         } else {
-          writer.write(String.format("%s;%s;%s;%s;%s;%s;%s\n",
-            tickData.getInstrument().getCode(),
-            formatter.format(barData.getOpenDate()),
-            summFormat(barData.getOpenPrice()),   //open
-            summFormat(barData.getHighPrice()),   //high
-            summFormat(barData.getLowPrice()),    //low
-            summFormat(barData.getClosePrice()),  //close
-            barData.getValue()     //vol
-          ));
+          if (timeFormat == null) {
+            writer.write(String.format("%s;%s;%s;%s;%s;%s;%s\n",
+                    tickData.getInstrument().getCode(),
+                    dateFormat.format(barDate),
+                    summFormat(barData.getOpenPrice()),   //open
+                    summFormat(barData.getHighPrice()),   //high
+                    summFormat(barData.getLowPrice()),    //low
+                    summFormat(barData.getClosePrice()),  //close
+                    barData.getValue()     //vol
+            ));
+          } else {
+            writer.write(String.format("%s;%s;%s;%s;%s;%s;%s;%s\n",
+                    tickData.getInstrument().getCode(),
+                    dateFormat.format(barDate),
+                    timeFormat.format(barDate),
+                    summFormat(barData.getOpenPrice()),   //open
+                    summFormat(barData.getHighPrice()),   //high
+                    summFormat(barData.getLowPrice()),    //low
+                    summFormat(barData.getClosePrice()),  //close
+                    barData.getValue()     //vol
+            ));
+          }
         }
       }
   }

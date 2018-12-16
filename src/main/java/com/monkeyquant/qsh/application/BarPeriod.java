@@ -1,4 +1,4 @@
-package com.monkeyquant.qsh.model;
+package com.monkeyquant.qsh.application;
 
 public enum BarPeriod {
   M1,

@@ -1,8 +1,9 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.application;
 
 import com.alex09x.qsh.reader.QshReaderFactory;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
+import com.monkeyquant.qsh.*;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.OutputFileType;
 import lombok.extern.log4j.Log4j;
@@ -37,8 +38,8 @@ public class QshFilesConverterApplication {
       long startTime = System.currentTimeMillis();
 
       parser.parseArgument(args);
-      String dateFormat = converterParameters.getTimeFormat();
-      if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+      String dateFormat = converterParameters.getDateFormat();
+      if (StringUtils.isEmpty(converterParameters.getDateFormat())) {
         dateFormat = "yyyy.MM.dd HH:mm:ss.SSS";
       }
       outFileName = converterParameters.getOutputFile();
@@ -57,7 +58,7 @@ public class QshFilesConverterApplication {
             writer.write("symbol;time;price;volume;deal_id\n");
           }
 
-          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getUseMql(),
+          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getUseMql(),
             converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
@@ -77,7 +78,7 @@ public class QshFilesConverterApplication {
             writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
-          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getUseMql(),
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), timeQuant, converterParameters.getUseMql(),
             converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
@@ -97,26 +98,33 @@ public class QshFilesConverterApplication {
 
         TradePeriod period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
 
-        if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+        if (StringUtils.isEmpty(converterParameters.getDateFormat())) {
           dateFormat = "yyyy.MM.dd HH:mm";
         }
+        String timeFormat = converterParameters.getTimeFormat();
 
         try {
           writer = new FileWriter(outFileName, true);
           if (converterParameters.getUseMql()) {
             writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
           } else {
-            writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+            if (StringUtils.isEmpty(timeFormat)) {
+              writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+            } else {
+              writer.write("<TICKER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+            }
           }
           processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(
             writer,
             dateFormat,
+            timeFormat,
             converterParameters.getUseMql(),
             period,
             converterParameters.getUseBookState(),
             converterParameters.getScale(),
             converterParameters.getStart(),
-            converterParameters.getEnd()
+            converterParameters.getEnd(),
+            converterParameters.getBarTime()
           )), converterParameters.getInputFile());
           writer.flush();
           writer.close();

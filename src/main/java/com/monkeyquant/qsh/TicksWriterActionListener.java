@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
   private final boolean useMql;
 
-  public TicksWriterActionListener(FileWriter writer, String dateFormat, boolean useMql, int scale, int startTime, int endTime) {
-    super(writer, dateFormat, scale, startTime, endTime);
+  public TicksWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, int scale, int startTime, int endTime) {
+    super(writer, dateFormat, timeFormat, scale, startTime, endTime);
     this.useMql = useMql;
   }
 
@@ -28,7 +28,7 @@ public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
             mqlDateFormat.format(tickTime), mqlTimeFormat.format(tickTime),
             summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), tickData.getAmount()));
         } else {
-          writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickTime), summFormat(tickData.getPrice()), tickData.getAmount(), tickData.getTradeId()));
+          writer.write(String.format("%s;%s;%s;%s\n", dateFormat.format(tickTime), summFormat(tickData.getPrice()), tickData.getAmount(), tickData.getTradeId()));
         }
       }
     } catch (IOException e) {

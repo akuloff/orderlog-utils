@@ -1,6 +1,5 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.application;
 
-import com.monkeyquant.qsh.model.BarPeriod;
 import com.monkeyquant.qsh.model.OutputFileType;
 import lombok.Getter;
 import org.kohsuke.args4j.Option;
@@ -20,8 +19,14 @@ class ConverterParameters {
   @Option(name = "-period", usage = "period for BARS file type", depends = {"-type=BARS"})
   private BarPeriod barPeriod;
 
+  @Option(name = "-bartime", usage = "source for bar time")
+  private TimeOfBar barTime = TimeOfBar.close;
+
   @Option(name = "-usebook", handler = BooleanOptionHandler.class, usage = "use book states for bars collect instead of ticks")
   private Boolean useBookState = false;
+
+  @Option(name = "-dateFormat", usage = "time and date format")
+  private String dateFormat;
 
   @Option(name = "-timeFormat", usage = "time and date format")
   private String timeFormat;

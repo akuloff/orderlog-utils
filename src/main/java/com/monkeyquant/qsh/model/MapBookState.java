@@ -14,6 +14,7 @@ public class MapBookState implements IBookState {
     private final TreeMap<Double, Integer> buyPositions = new TreeMap<>(Collections.reverseOrder());
     private final TreeMap<Double, Integer> sellPositions = new TreeMap<>();
 
+    @Setter
     private Timestamp date;
 
     protected long putCount = 0;
@@ -130,7 +131,7 @@ public class MapBookState implements IBookState {
 
     @Override
     public Timestamp getDate() {
-        return null;
+        return date;
     }
 
     @Override

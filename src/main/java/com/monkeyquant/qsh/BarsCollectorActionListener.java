@@ -25,6 +25,8 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private final TimeOfBar timeOfBar;
 
   private double lastAsk = 0, lastBid = 0;
+  private Timestamp lastBookTime = null;
+  private final TradePeriod period;
 
   public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar) {
     super(writer, dateFormat, timeFormat, scale, startTime, endTime);
@@ -33,6 +35,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
     this.barsSaver = new BarsSaver(new BarsCollector(period));
     this.barsSaver.setFillGaps(!useBookState);
     this.timeOfBar = timeOfBar;
+    this.period = period;
   }
 
   private void processTickData(Timestamp tickTime, ITickData tickData, int spread) throws Exception {
@@ -98,9 +101,12 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
       Timestamp onTime = bookStateEvent.getTime();
       IBookState bookState = bookStateEvent.getBookState();
       PriceRecord bidRecord = bookState.getBeskBid();
+      if (lastBookTime == null) {
+        lastBookTime = onTime;
+      }
       if (bidRecord != null) {
         double curBid = bidRecord.getPrice();
-        if (curBid != lastBid) {
+        if (curBid != lastBid || (onTime.getTime() - lastBookTime.getTime() > period.getPeriodMsec())) {
           lastBid = curBid;
           ITickData tickData = new HistoryTick(bookState.getInstrument(), onTime, lastBid, 1, "1", false, "", true);
           processTickData(onTime, tickData, 1);

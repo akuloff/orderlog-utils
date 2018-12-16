@@ -38,6 +38,7 @@ public class OrdersProcessorBookMap implements IOrdersProcessor{
                 bstate.setInstrument(instrument);
             }
             try {
+                bstate.setDate(time);
                 marketActionListener.onBookChange(BookStateEvent.builder().bookState(bstate).time(time).build());
             } catch (Exception e) {
                 System.out.println(e);

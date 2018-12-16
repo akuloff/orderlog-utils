@@ -57,7 +57,8 @@ public class QshFilesConverterApplication {
             writer.write("symbol;time;price;volume;deal_id\n");
           }
 
-          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getUseMql())), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getUseMql(),
+            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
@@ -76,7 +77,8 @@ public class QshFilesConverterApplication {
             writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
-          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getUseMql())), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, timeQuant, converterParameters.getUseMql(),
+            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
@@ -85,11 +87,19 @@ public class QshFilesConverterApplication {
 
       } else if (OutputFileType.BARS.equals(converterParameters.getOutputFileType())) {
 
+        if (converterParameters.getBarPeriod() == null) {
+          throw new IllegalArgumentException("-period parameter required for -type=BARS");
+        }
+
         if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
           outFileName = converterParameters.getInputFile() + "_bars.csv";
         }
 
         TradePeriod period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
+
+        if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+          dateFormat = "yyyy.MM.dd HH:mm";
+        }
 
         try {
           writer = new FileWriter(outFileName, true);
@@ -98,7 +108,16 @@ public class QshFilesConverterApplication {
           } else {
             writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
           }
-          processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(writer, dateFormat, converterParameters.getUseMql(), period)), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(
+            writer,
+            dateFormat,
+            converterParameters.getUseMql(),
+            period,
+            converterParameters.getUseBookState(),
+            converterParameters.getScale(),
+            converterParameters.getStart(),
+            converterParameters.getEnd()
+          )), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {

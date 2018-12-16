@@ -28,17 +28,21 @@ public class OrdersProcessorOnlyTicks implements IOrdersProcessor{
         long orderId = rec.getOrderId();
         if (orderId > 0) {
             if (rec.isFill() && marketActionListener != null) {
-                if (!rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
-                  && rec.getDealId() != lastDealId
+                if (!rec.isAdd() && !rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
+                  && rec.getDealId() != lastDealId && rec.getDealPrice() > 0 && rec.isEndTransaction()
                 ) {
                     ITickData tickData = HistoryTick.builder()
                       .buyFlag(Utils.buyFlagFromDealType(Utils.fromQshTypeReverse(rec.getType())))
-                      .price(rec.getOrderPrice())
+                      .price(rec.getDealPrice())
                       .amount(rec.getVolume())
                       .date(rec.getTime())
-                      .tradeID(String.valueOf(rec.getDealId()))
+                      .tradeId(String.valueOf(rec.getDealId()))
                       .build();
-                    marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(rec.getTime()).build());
+                    try {
+                        marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(rec.getTime()).build());
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
                     lastDealId = rec.getDealId();
                 }
             }

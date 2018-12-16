@@ -63,9 +63,9 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                             if (rec.getRestVolume() == 0) { //объема в заявке не осталось (значит пеернос заявки - то же что и удаление и постановка новой)
                                 ordersMap.remove(ord_id);
                                 move_remove++;
-                                bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
+                                bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
                             } else {
-                                bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), (oldrec.getRestVolume() - rec.getRestVolume()) * (-1));
+                                bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), (oldrec.getRestVolume() - rec.getRestVolume()) * (-1));
                             }
                             move_exists++;
                         }
@@ -74,7 +74,7 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                     if (rec.isAdd() && !rec.isNonSystem()) { //добавление новой заявки
                         if (!ordersMap.containsKey(ord_id)) {
                             ordersMap.put(ord_id, rec);
-                            bstate.addForDealType(rec.getType(), rec.getOrderPrice(), rec.getRestVolume());
+                            bstate.addForDealType(rec.getTime(), rec.getType(), rec.getOrderPrice(), rec.getRestVolume());
                         }
                     } else if (rec.isFill()) { //сделка по заявке
                         total_fill++;
@@ -104,7 +104,7 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                                 fill_notmatch++;
                             }
 
-                            bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), rec.getVolume() * (-1));
+                            bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), rec.getVolume() * (-1));
 
                         } else {
                             fill_notfound++;
@@ -115,7 +115,7 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                 } else if (rec.isCanceled()) { //отмена (удаление) заявки
                     if (ordersMap.containsKey(ord_id)) {
                         oldrec = ordersMap.get(ord_id);
-                        bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
+                        bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
                         ordersMap.remove(ord_id);
                     } else {
                         //System.out.println("!!! can not find order for remove: " + ord_id);
@@ -132,7 +132,7 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                         cross_notfound++;
                     } else {
                         oldrec = ordersMap.get(ord_id);
-                        bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
+                        bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), oldrec.getRestVolume() * (-1));
                     }
 
                     ordersMap.remove(ord_id);
@@ -148,7 +148,7 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
                             counter_end++;
                             if (ordersMap.containsKey(ord_id)) { //ликвидация сделки
                                 oldrec = ordersMap.get(ord_id);
-                                bstate.addForDealType(oldrec.getType(), oldrec.getOrderPrice(), (oldrec.getRestVolume() - rec.getRestVolume()) * (-1));
+                                bstate.addForDealType(rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), (oldrec.getRestVolume() - rec.getRestVolume()) * (-1));
                             }
                         }
                     }

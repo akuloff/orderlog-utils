@@ -31,13 +31,17 @@ public class OrdersProcessorBookMap implements IOrdersProcessor{
 
 
     private void changeBookState(OrdersLogRecord rec, Timestamp time, DealType dealType, double price, int value){
-        bstate.addForDealType(dealType, price, value);
+        bstate.addForDealType(time, dealType, price, value);
         if (marketActionListener != null && rec.isEndTransaction()) {
             if (instrument == null) {
                 instrument = new TradeInstrument(rec.getSymbol());
                 bstate.setInstrument(instrument);
             }
-            marketActionListener.onBookChange(BookStateEvent.builder().bookState(bstate).time(time).build());
+            try {
+                marketActionListener.onBookChange(BookStateEvent.builder().bookState(bstate).time(time).build());
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
     }
 
@@ -92,15 +96,22 @@ public class OrdersProcessorBookMap implements IOrdersProcessor{
 
                         if (marketActionListener != null) {
                             if(!rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
-                              && rec.getDealId() != lastDealId
+                              && rec.getDealId() != lastDealId && rec.getDealPrice() > 0 && rec.isEndTransaction()
                             ){
                                 ITickData tickData = HistoryTick.builder()
+                                  .instrument(instrument)
                                   .buyFlag(Utils.buyFlagFromDealType(Utils.fromQshTypeReverse(oldrec.getType())))
-                                  .price(rec.getOrderPrice())
+                                  .price(rec.getDealPrice())
                                   .amount(rec.getVolume())
                                   .date(rec.getTime())
+                                  .tradeId(String.valueOf(rec.getDealId()))
                                   .build();
-                                marketActionListener.onNewTick(TickDataEvent.builder().time(rec.getTime()).tickData(tickData).build());
+
+                                try {
+                                    marketActionListener.onNewTick(TickDataEvent.builder().time(rec.getTime()).tickData(tickData).build());
+                                } catch (Exception e){
+                                    System.out.println(e);
+                                }
                                 lastDealId = rec.getDealId();
                             }
                         }

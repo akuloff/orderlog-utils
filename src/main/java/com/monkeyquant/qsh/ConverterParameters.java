@@ -20,8 +20,8 @@ class ConverterParameters {
   @Option(name = "-period", usage = "period for BARS file type", depends = {"-type=BARS"})
   private BarPeriod barPeriod;
 
-  @Option(name = "-usebookstate", usage = "use book states for bars collect instead of ticks")
-  private Boolean useBookState;
+  @Option(name = "-usebook", handler = BooleanOptionHandler.class, usage = "use book states for bars collect instead of ticks")
+  private Boolean useBookState = false;
 
   @Option(name = "-timeFormat", usage = "time and date format")
   private String timeFormat;
@@ -31,5 +31,14 @@ class ConverterParameters {
 
   @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")
   private Boolean useMql = false;
+
+  @Option(name = "-scale", usage = "scale for prices")
+  private Integer scale = 2;
+
+  @Option(name = "-start", usage = "start time, default=600")
+  private Integer start = 600;
+
+  @Option(name = "-end", usage = "end time, default=1425")
+  private Integer end = 1425;
 
 }

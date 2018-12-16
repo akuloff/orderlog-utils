@@ -55,10 +55,11 @@ public class MapBookState implements IBookState {
         }
     }
 
-    public void addForDealType(DealType dtype, double price, int value){
-        if (dtype == DealType.BUY){
+    public void addForDealType(Timestamp timestamp, DealType dtype, double price, int value){
+        this.date = timestamp;
+        if (dtype == DealType.BUY) {
             addToTreeMap(buyPositions, price, value);
-        }else if (dtype == DealType.SELL){
+        } else if (dtype == DealType.SELL) {
             addToTreeMap(sellPositions, price, value);
         }
     }
@@ -134,16 +135,26 @@ public class MapBookState implements IBookState {
 
     @Override
     public PriceRecord getBeskAsk() {
-        return null;
+        List<PriceRecord> plist = getMapRecordsForCount(this.sellPositions, 1);
+        if (plist.size() > 0) {
+            return plist.get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public PriceRecord getBeskBid() {
-        return null;
+        List<PriceRecord> plist = getMapRecordsForCount(this.buyPositions, 1);
+        if (plist.size() > 0) {
+            return plist.get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
     public int getBookSize() {
-        return 0;
+        return Math.min(buyPositions.size(), sellPositions.size());
     }
 }

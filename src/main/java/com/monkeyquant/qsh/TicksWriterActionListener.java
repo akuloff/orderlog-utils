@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
   private final boolean useMql;
 
-  public TicksWriterActionListener(FileWriter writer, String dateFormat, boolean useMql) {
-    super(writer, dateFormat);
+  public TicksWriterActionListener(FileWriter writer, String dateFormat, boolean useMql, int scale, int startTime, int endTime) {
+    super(writer, dateFormat, scale, startTime, endTime);
     this.useMql = useMql;
   }
 
@@ -22,11 +22,14 @@ public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
     try {
       ITickData tickData = tickDataEvent.getTickData();
       Timestamp tickTime = tickDataEvent.getTime();
-      if (useMql) {
-        writer.write(String.format("%s;%s;%s;%s;%s;%s\n",
-          mqlDateFormat.format(tickTime), mqlTimeFormat.format(tickTime), tickData.getPrice(), tickData.getPrice(), tickData.getPrice(), tickData.getAmount()));
-      } else {
-        writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickTime), tickData.getPrice(), tickData.getAmount(), tickData.getTradeId()));
+      if (checkTime(tickDataEvent.getTime())) {
+        if (useMql) {
+          writer.write(String.format("%s;%s;%s;%s;%s;%s\n",
+            mqlDateFormat.format(tickTime), mqlTimeFormat.format(tickTime),
+            summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), tickData.getAmount()));
+        } else {
+          writer.write(String.format("%s;%s;%s;%s\n", formatter.format(tickTime), summFormat(tickData.getPrice()), tickData.getAmount(), tickData.getTradeId()));
+        }
       }
     } catch (IOException e) {
       log.error("write exception", e);

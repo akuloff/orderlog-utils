@@ -13,6 +13,8 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 
 @Log4j
@@ -25,6 +27,33 @@ public class QshFilesConverterApplication {
       OrdersLogRecord ordersLogRecord = ordersLogRecordIterator.next();
       ordersProcessor.processOrderRecord(ordersLogRecord);
     }
+  }
+
+  private static String initOutFile(String outfile, OutputFileType fileType){
+    String outFileName = null, appender = "";
+
+    if (!StringUtils.isEmpty(outfile)) {
+      return outfile;
+    }
+
+    switch (fileType) {
+      case TICKS:
+        appender = "_ticks.csv";
+        break;
+      case BARS:
+        appender = "_bars.csv";
+        break;
+      case BOOKSTATE:
+        appender = "_book.csv";
+        break;
+      default:
+        appender = ".csv";
+    }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+    outFileName = String.format("out_%s%s", sdf.format(new Date()), appender);
+
+    return outFileName;
   }
 
   public static void main(String[] args) {
@@ -42,20 +71,19 @@ public class QshFilesConverterApplication {
       if (StringUtils.isEmpty(converterParameters.getDateFormat())) {
         dateFormat = "yyyy.MM.dd HH:mm:ss.SSS";
       }
-      outFileName = converterParameters.getOutputFile();
+
+      outFileName = initOutFile(converterParameters.getOutputFile(), converterParameters.getOutputFileType());
 
       if (OutputFileType.TICKS.equals(converterParameters.getOutputFileType())) {
 
-        if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
-          outFileName = converterParameters.getInputFile() + "_ticks.csv";
-        }
-
         try {
           writer = new FileWriter(outFileName, true);
-          if (converterParameters.getUseMql()) {
-            writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
-          } else {
-            writer.write("symbol;time;price;volume;deal_id\n");
+          if (!converterParameters.getNoHeader()) {
+            if (converterParameters.getUseMql()) {
+              writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+            } else {
+              writer.write("symbol;time;price;volume;deal_id\n");
+            }
           }
 
           processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getUseMql(),
@@ -67,15 +95,14 @@ public class QshFilesConverterApplication {
         }
 
       } else if (OutputFileType.BOOKSTATE.equals(converterParameters.getOutputFileType())) {
-        if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
-          outFileName = converterParameters.getInputFile() + "_book.csv";
-        }
         try {
           writer = new FileWriter(outFileName, true);
-          if (converterParameters.getUseMql()) {
-            writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
-          } else {
-            writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+          if (!converterParameters.getNoHeader()) {
+            if (converterParameters.getUseMql()) {
+              writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+            } else {
+              writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+            }
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
           processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), timeQuant, converterParameters.getUseMql(),
@@ -92,10 +119,6 @@ public class QshFilesConverterApplication {
           throw new IllegalArgumentException("-period parameter required for -type=BARS");
         }
 
-        if (StringUtils.isEmpty(converterParameters.getOutputFile())) {
-          outFileName = converterParameters.getInputFile() + "_bars.csv";
-        }
-
         TradePeriod period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
 
         if (StringUtils.isEmpty(converterParameters.getDateFormat())) {
@@ -105,13 +128,15 @@ public class QshFilesConverterApplication {
 
         try {
           writer = new FileWriter(outFileName, true);
-          if (converterParameters.getUseMql()) {
-            writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
-          } else {
-            if (StringUtils.isEmpty(timeFormat)) {
-              writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+          if (!converterParameters.getNoHeader()) {
+            if (converterParameters.getUseMql()) {
+              writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
             } else {
-              writer.write("<TICKER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+              if (StringUtils.isEmpty(timeFormat)) {
+                writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+              } else {
+                writer.write("<TICKER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+              }
             }
           }
           processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(

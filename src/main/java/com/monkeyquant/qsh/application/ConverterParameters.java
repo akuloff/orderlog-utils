@@ -37,6 +37,9 @@ class ConverterParameters {
   @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")
   private Boolean useMql = false;
 
+  @Option(name = "-noheader", handler = BooleanOptionHandler.class, usage = "do not write header for columns")
+  private Boolean noHeader = false;
+
   @Option(name = "-scale", usage = "scale for prices")
   private Integer scale = 2;
 

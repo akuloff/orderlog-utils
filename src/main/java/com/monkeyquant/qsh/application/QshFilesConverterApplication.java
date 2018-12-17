@@ -29,22 +29,31 @@ public class QshFilesConverterApplication {
     }
   }
 
-  private static String initOutFile(String outfile, OutputFileType fileType){
+  private static String initOutFile(ConverterParameters parameters){
     String outFileName = null, appender = "";
 
+    String outfile = parameters.getOutputFile();
     if (!StringUtils.isEmpty(outfile)) {
       return outfile;
     }
+
+    OutputFileType fileType = parameters.getOutputFileType();
 
     switch (fileType) {
       case TICKS:
         appender = "_ticks.csv";
         break;
       case BARS:
-        appender = "_bars.csv";
+        if (parameters.getBarPeriod() != null) {
+          appender = "_" + parameters.getBarPeriod().toString();
+        }
+        appender = appender + "_bars.csv";
         break;
       case BOOKSTATE:
-        appender = "_book.csv";
+        if (parameters.getTimeQuant() != null && parameters.getTimeQuant() > 0) {
+          appender = "_t" + parameters.getTimeQuant();
+        }
+        appender = appender + "_book.csv";
         break;
       default:
         appender = ".csv";
@@ -72,7 +81,7 @@ public class QshFilesConverterApplication {
         dateFormat = "yyyy.MM.dd HH:mm:ss.SSS";
       }
 
-      outFileName = initOutFile(converterParameters.getOutputFile(), converterParameters.getOutputFileType());
+      outFileName = initOutFile(converterParameters);
 
       if (OutputFileType.TICKS.equals(converterParameters.getOutputFileType())) {
 

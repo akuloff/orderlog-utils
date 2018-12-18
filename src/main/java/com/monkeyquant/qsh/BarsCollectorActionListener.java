@@ -29,7 +29,10 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private Timestamp lastBookTime = null;
   private final TradePeriod period;
 
-  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar, TimeFilter timeFilter) {
+  private final boolean closeOnly;
+
+  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql,
+                                     TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar, TimeFilter timeFilter, boolean closeOnly) {
     super(writer, dateFormat, timeFormat, scale, startTime, endTime, timeFilter);
     this.useMql = useMql;
     this.useBookState = useBookState;
@@ -37,6 +40,25 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
     this.barsSaver.setFillGaps(!useBookState);
     this.timeOfBar = timeOfBar;
     this.period = period;
+    this.closeOnly = closeOnly;
+  }
+
+  private String getPrices(IBarData barData, boolean closeOnly){
+    if (!closeOnly) {
+      return String.format("%s;%s;%s;%s",
+              summFormat(barData.getOpenPrice()),
+              summFormat(barData.getHighPrice()),
+              summFormat(barData.getLowPrice()),
+              summFormat(barData.getClosePrice())
+      );
+    } else {
+      return String.format("%s;%s;%s;%s",
+              summFormat(barData.getClosePrice()),
+              summFormat(barData.getClosePrice()),
+              summFormat(barData.getClosePrice()),
+              summFormat(barData.getClosePrice())
+      );
+    }
   }
 
   private void processTickData(Timestamp tickTime, ITickData tickData, int spread) throws Exception {
@@ -57,37 +79,28 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
         }
 
         if (useMql) {
-          writer.write(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s\n",
+          writer.write(String.format("%s;%s;%s;%s;%s;%s\n",
             mqlDateFormat.format(barDate),
             mqlTimeFormat.format(barDate),
-            summFormat(barData.getOpenPrice()),   //open
-            summFormat(barData.getHighPrice()),   //high
-            summFormat(barData.getLowPrice()),    //low
-            summFormat(barData.getClosePrice()),  //close
+            getPrices(barData, closeOnly),
             barData.getValue(),     //tickvol
             barData.getValue(),      //vol
             spread
           ));
         } else {
           if (timeFormat == null) {
-            writer.write(String.format("%s;%s;%s;%s;%s;%s;%s\n",
+            writer.write(String.format("%s;%s;%s;%s\n",
                     tickData.getInstrument().getCode(),
                     dateFormat.format(barDate),
-                    summFormat(barData.getOpenPrice()),   //open
-                    summFormat(barData.getHighPrice()),   //high
-                    summFormat(barData.getLowPrice()),    //low
-                    summFormat(barData.getClosePrice()),  //close
+                    getPrices(barData, closeOnly),
                     barData.getValue()     //vol
             ));
           } else {
-            writer.write(String.format("%s;%s;%s;%s;%s;%s;%s;%s\n",
+            writer.write(String.format("%s;%s;%s;%s;%s\n",
                     tickData.getInstrument().getCode(),
                     dateFormat.format(barDate),
                     timeFormat.format(barDate),
-                    summFormat(barData.getOpenPrice()),   //open
-                    summFormat(barData.getHighPrice()),   //high
-                    summFormat(barData.getLowPrice()),    //low
-                    summFormat(barData.getClosePrice()),  //close
+                    getPrices(barData, closeOnly),
                     barData.getValue()     //vol
             ));
           }

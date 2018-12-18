@@ -40,6 +40,9 @@ class ConverterParameters {
   @Option(name = "-noheader", handler = BooleanOptionHandler.class, usage = "do not write header for columns")
   private Boolean noHeader = false;
 
+  @Option(name = "-closeonly", handler = BooleanOptionHandler.class, usage = "write close only price in OHLC bars")
+  private Boolean closeOnly = false;
+
   @Option(name = "-scale", usage = "scale for prices")
   private Integer scale = 2;
 

@@ -159,7 +159,8 @@ public class QshFilesConverterApplication {
             converterParameters.getStart(),
             converterParameters.getEnd(),
             converterParameters.getBarTime(),
-            converterParameters.getTimeFilter()
+            converterParameters.getTimeFilter(),
+            converterParameters.getCloseOnly()
           )), converterParameters.getInputFile());
           writer.flush();
           writer.close();

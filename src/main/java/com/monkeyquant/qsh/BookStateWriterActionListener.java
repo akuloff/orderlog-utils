@@ -2,6 +2,7 @@ package com.monkeyquant.qsh;
 
 import com.monkeyquant.jte.primitives.history.PriceRecord;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
+import com.monkeyquant.qsh.application.TimeFilter;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import lombok.extern.log4j.Log4j;
 
@@ -19,8 +20,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
 
   private long lastQuant = 0;
 
-  public BookStateWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, Integer timeQuant, boolean mqlTick, int scale, int startTime, int endTime) {
-    super(writer, dateFormat, timeFormat, scale, startTime, endTime);
+  public BookStateWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, Integer timeQuant, boolean mqlTick, int scale, int startTime, int endTime, TimeFilter timeFilter) {
+    super(writer, dateFormat, timeFormat, scale, startTime, endTime, timeFilter);
     this.timeQuantMsec = timeQuant != null ? timeQuant : 0;
     this.mqlTick = mqlTick;
   }

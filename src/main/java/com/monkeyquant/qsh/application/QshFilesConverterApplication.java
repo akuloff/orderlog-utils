@@ -96,7 +96,7 @@ public class QshFilesConverterApplication {
           }
 
           processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getUseMql(),
-            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
+            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
@@ -110,12 +110,12 @@ public class QshFilesConverterApplication {
             if (converterParameters.getUseMql()) {
               writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
             } else {
-              writer.write("symbol;time;ask;bid;askvol;bidvol\n"); //format
+              writer.write("symbol;time;ask;askvol;bid;bidvol\n"); //format
             }
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
           processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), timeQuant, converterParameters.getUseMql(),
-            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd())), converterParameters.getInputFile());
+            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {
@@ -158,7 +158,8 @@ public class QshFilesConverterApplication {
             converterParameters.getScale(),
             converterParameters.getStart(),
             converterParameters.getEnd(),
-            converterParameters.getBarTime()
+            converterParameters.getBarTime(),
+            converterParameters.getTimeFilter()
           )), converterParameters.getInputFile());
           writer.flush();
           writer.close();

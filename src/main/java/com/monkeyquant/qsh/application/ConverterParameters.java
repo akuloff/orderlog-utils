@@ -49,4 +49,7 @@ class ConverterParameters {
   @Option(name = "-end", usage = "end time, default=1425")
   private Integer end = 1425;
 
+  @Option(name = "-timefilter", usage = "market time filter, default = NONE")
+  private TimeFilter timeFilter = TimeFilter.NONE;
+
 }

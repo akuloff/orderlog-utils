@@ -8,6 +8,7 @@ import com.monkeyquant.jte.primitives.interfaces.IBarData;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
+import com.monkeyquant.qsh.application.TimeFilter;
 import com.monkeyquant.qsh.application.TimeOfBar;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.TickDataEvent;
@@ -28,8 +29,8 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private Timestamp lastBookTime = null;
   private final TradePeriod period;
 
-  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar) {
-    super(writer, dateFormat, timeFormat, scale, startTime, endTime);
+  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar, TimeFilter timeFilter) {
+    super(writer, dateFormat, timeFormat, scale, startTime, endTime, timeFilter);
     this.useMql = useMql;
     this.useBookState = useBookState;
     this.barsSaver = new BarsSaver(new BarsCollector(period));
@@ -110,6 +111,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
           lastBid = curBid;
           ITickData tickData = new HistoryTick(bookState.getInstrument(), onTime, lastBid, 1, "1", false, "", true);
           processTickData(onTime, tickData, 1);
+          lastBookTime = onTime;
         }
       }
     }

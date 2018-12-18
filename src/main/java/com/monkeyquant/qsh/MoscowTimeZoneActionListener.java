@@ -1,5 +1,6 @@
 package com.monkeyquant.qsh;
 
+import com.monkeyquant.qsh.application.TimeFilter;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,18 +24,36 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
   protected int startTime = 600;
   protected int endTime = 1425;
   protected int scale = 2;
+  protected final TimeFilter timeFilter;
+
+  protected int getTimeCounter(Date date) {
+    calendar.setTime(date);
+    return calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
+  }
+
+  protected boolean fortsTimeCheck(Date date){
+    int ct = getTimeCounter(date);
+    return !(ct >= (13*60 + 55) && ct <= 14*60 + 5) && !(ct >= (18*60 + 40) && ct <= 19*60 + 15);
+  }
 
   protected boolean checkTime(Date date) {
-    calendar.setTime(date);
-    int ctime = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
-    return ctime >= startTime && ctime <= endTime;
+    int ctime = getTimeCounter(date);
+    boolean rval =  ctime >= startTime && ctime <= endTime;
+    if (rval && timeFilter != TimeFilter.NONE) {
+      switch (timeFilter) {
+        case FORTS:
+          rval = fortsTimeCheck(date);
+          break;
+      }
+    }
+    return rval;
   }
 
   protected String summFormat(double value) {
     return new BigDecimal(value).setScale(scale, BigDecimal.ROUND_CEILING).toString();
   }
 
-  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, String timeFormat, int scale, int startTime, int endTime) {
+  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, String timeFormat, int scale, int startTime, int endTime, TimeFilter timeFilter) {
     this.writer = writer;
     this.dateFormat = new SimpleDateFormat(dateFormat);
     this.dateFormat.setCalendar(calendar);
@@ -56,5 +75,6 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
     this.startTime = startTime;
     this.endTime = endTime;
     this.scale = scale;
+    this.timeFilter = timeFilter;
   }
 }

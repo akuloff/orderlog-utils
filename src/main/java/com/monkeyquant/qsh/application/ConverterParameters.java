@@ -31,7 +31,7 @@ class ConverterParameters {
   @Option(name = "-timeFormat", usage = "time and date format")
   private String timeFormat;
 
-  @Option(name = "-timeQuant", usage = "time quant in msec")
+  @Option(name = "-timeQuant", usage = "time quant in msec for BOOKSTATE")
   private Integer timeQuant;
 
   @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")
@@ -42,6 +42,9 @@ class ConverterParameters {
 
   @Option(name = "-closeonly", handler = BooleanOptionHandler.class, usage = "write close only price in OHLC bars")
   private Boolean closeOnly = false;
+
+  @Option(name = "-writezero", handler = BooleanOptionHandler.class, usage = "write zero ask or bid for BOOKSTATE output")
+  private Boolean writeZero = false;
 
   @Option(name = "-scale", usage = "scale for prices")
   private Integer scale = 2;

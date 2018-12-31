@@ -4,7 +4,6 @@ import com.alex09x.qsh.reader.type.DealType;
 import com.monkeyquant.jte.primitives.history.PriceRecord;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
-import com.monkeyquant.jte.primitives.model.TradeType;
 import lombok.Setter;
 
 import java.sql.Timestamp;
@@ -125,17 +124,12 @@ public class MapBookState implements IBookState {
     }
 
     @Override
-    public void addDealType(TradeType tradeType, PriceRecord priceRecord) {
-
-    }
-
-    @Override
     public Timestamp getDate() {
         return date;
     }
 
     @Override
-    public PriceRecord getBeskAsk() {
+    public PriceRecord getBestAsk() {
         List<PriceRecord> plist = getMapRecordsForCount(this.sellPositions, 1);
         if (plist.size() > 0) {
             return plist.get(0);
@@ -145,7 +139,7 @@ public class MapBookState implements IBookState {
     }
 
     @Override
-    public PriceRecord getBeskBid() {
+    public PriceRecord getBestBid() {
         List<PriceRecord> plist = getMapRecordsForCount(this.buyPositions, 1);
         if (plist.size() > 0) {
             return plist.get(0);
@@ -157,5 +151,10 @@ public class MapBookState implements IBookState {
     @Override
     public int getBookSize() {
         return Math.min(buyPositions.size(), sellPositions.size());
+    }
+
+    @Override
+    public String getCustomField() {
+        return null;
     }
 }

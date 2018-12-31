@@ -25,7 +25,7 @@ task customFatJar(type: Jar) {
 }
 
 dependencies {
-    compile group: 'com.monkeyquant', name: 'jte.primitives', version: '0.0.6-snapshot'
+    compile group: 'com.monkeyquant', name: 'jte.primitives', version: '0.0.7-snapshot'
 
     compile group: 'org.agrona', name: 'agrona', version: '0.9.16'
     compile group: 'com.alex09x.qscalp', name: 'qsh2data', version: '0.2-SNAPSHOT'

@@ -114,7 +114,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
     if (useBookState) {
       Timestamp onTime = bookStateEvent.getTime();
       IBookState bookState = bookStateEvent.getBookState();
-      PriceRecord bidRecord = bookState.getBeskBid();
+      PriceRecord bidRecord = bookState.getBestBid();
       if (lastBookTime == null) {
         lastBookTime = onTime;
       }

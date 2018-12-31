@@ -115,7 +115,7 @@ public class QshFilesConverterApplication {
           }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
           processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), timeQuant, converterParameters.getUseMql(),
-            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter())), converterParameters.getInputFile());
+            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter(), converterParameters.getWriteZero())), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(IOException e) {

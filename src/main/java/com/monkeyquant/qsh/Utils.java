@@ -2,8 +2,8 @@ package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.type.DealType;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
-import com.monkeyquant.jte.primitives.history.PriceRecord;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
+import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.MarketDealType;
 import org.apache.commons.csv.CSVFormat;

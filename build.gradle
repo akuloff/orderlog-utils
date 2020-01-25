@@ -10,8 +10,8 @@ apply plugin: 'maven-publish'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
 }
 
 task customFatJar(type: Jar) {
@@ -30,7 +30,11 @@ dependencies {
     compile group: 'org.agrona', name: 'agrona', version: '0.9.16'
     compile group: 'com.alex09x.qscalp', name: 'qsh2data', version: '0.2-SNAPSHOT'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.5'
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
+
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+
     compile group: 'args4j', name: 'args4j', version: '2.33'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
 

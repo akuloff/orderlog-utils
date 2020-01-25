@@ -1,8 +1,8 @@
 package com.monkeyquant.qsh.model;
 
 import com.alex09x.qsh.reader.type.DealType;
-import com.monkeyquant.jte.primitives.history.PriceRecord;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
+import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
 import lombok.Setter;
 

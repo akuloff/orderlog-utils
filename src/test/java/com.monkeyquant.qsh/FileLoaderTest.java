@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+//TODO fix tests
+
 public class FileLoaderTest {
 
   private void processQshFile(String fpath) throws IOException {

@@ -2,6 +2,7 @@ package com.monkeyquant.qsh;
 
 import com.alex09x.qsh.reader.QshReaderFactory;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
+import com.monkeyquant.qsh.listeners.StatsMarketActionListener;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import org.junit.Test;

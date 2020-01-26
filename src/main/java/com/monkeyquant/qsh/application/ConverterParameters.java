@@ -1,6 +1,9 @@
 package com.monkeyquant.qsh.application;
 
+import com.monkeyquant.qsh.model.BarPeriod;
 import com.monkeyquant.qsh.model.OutputFileType;
+import com.monkeyquant.qsh.model.TimeFilter;
+import com.monkeyquant.qsh.model.TimeOfBar;
 import lombok.Getter;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;

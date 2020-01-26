@@ -1,4 +1,4 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.history.BarsCollector;
 import com.monkeyquant.jte.primitives.history.BarsSaver;
@@ -8,10 +8,10 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
-import com.monkeyquant.qsh.application.TimeFilter;
-import com.monkeyquant.qsh.application.TimeOfBar;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.TickDataEvent;
+import com.monkeyquant.qsh.model.TimeFilter;
+import com.monkeyquant.qsh.model.TimeOfBar;
 import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;

@@ -1,8 +1,8 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
-import com.monkeyquant.qsh.application.TimeFilter;
 import com.monkeyquant.qsh.model.TickDataEvent;
+import com.monkeyquant.qsh.model.TimeFilter;
 import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;
@@ -11,6 +11,8 @@ import java.sql.Timestamp;
 
 @Log4j
 public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
+
+  //TODO separate classes for mql and not
   private final boolean useMql;
 
   public TicksWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, int scale, int startTime, int endTime, TimeFilter timeFilter) {

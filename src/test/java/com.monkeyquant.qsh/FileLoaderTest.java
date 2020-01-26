@@ -5,7 +5,6 @@ import com.alex09x.qsh.reader.type.OrdersLogRecord;
 import com.monkeyquant.qsh.listeners.StatsMarketActionListener;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +47,7 @@ public class FileLoaderTest {
 //    printTreeMap(processor.getBookState().getSellPositions());
   }
 
-  @Test
+//  @Test
   public void testLoadQshOrdelog() throws Exception {
     long startTime = System.currentTimeMillis();
 

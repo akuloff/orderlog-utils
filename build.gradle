@@ -14,7 +14,7 @@ repositories {
     mavenCentral()
 }
 
-task customFatJar(type: Jar) {
+task buildFatJar(type: Jar) {
     manifest {
         attributes(
                 'Main-Class': 'com.monkeyquant.qsh.application.QshFilesConverterApplication'

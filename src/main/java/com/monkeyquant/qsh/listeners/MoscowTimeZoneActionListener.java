@@ -1,5 +1,6 @@
 package com.monkeyquant.qsh.listeners;
 
+import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.TimeFilter;
 import lombok.extern.log4j.Log4j;
@@ -25,6 +26,7 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
   protected int endTime = 1425;
   protected int scale = 2;
   protected final TimeFilter timeFilter;
+  protected ConverterParameters converterParameters;
 
   protected int getTimeCounter(Date date) {
     calendar.setTime(date);
@@ -76,5 +78,10 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
     this.endTime = endTime;
     this.scale = scale;
     this.timeFilter = timeFilter;
+  }
+
+  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
+    this(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter());
+    this.converterParameters = converterParameters;
   }
 }

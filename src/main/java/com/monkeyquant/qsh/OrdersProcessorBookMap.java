@@ -25,10 +25,16 @@ public class OrdersProcessorBookMap implements IOrdersProcessor{
     public OrdersProcessorBookMap() {
     }
 
+    @Override
+    public void init() throws Exception {
+        if (marketActionListener != null) {
+            marketActionListener.init();
+        }
+    }
+
     public IBookState getBookState() {
         return bstate;
     }
-
 
     private void changeBookState(OrdersLogRecord rec, Timestamp time, DealType dealType, double price, int value){
         bstate.addForDealType(time, dealType, price, value);

@@ -1,19 +1,11 @@
 package com.monkeyquant.qsh;
 
-import com.alex09x.qsh.reader.QshReaderFactory;
-import com.alex09x.qsh.reader.type.OrdersLogRecord;
-import com.monkeyquant.qsh.listeners.StatsMarketActionListener;
-import com.monkeyquant.qsh.model.IMarketActionListener;
-import com.monkeyquant.qsh.model.IOrdersProcessor;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
 
 //TODO fix tests
 
 public class FileLoaderTest {
 
+  /*
   private void processQshFile(String fpath) throws IOException {
     QshReaderFactory readerFactory = new QshReaderFactory();
     Iterator<OrdersLogRecord> reader = readerFactory.openPath(fpath);
@@ -64,5 +56,6 @@ public class FileLoaderTest {
     long timeDiff = System.currentTimeMillis() - startTime;
     System.out.println("timeDiff = " + timeDiff);
   }
+*/
 
 }

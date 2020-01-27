@@ -6,4 +6,5 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 public interface IOrdersProcessor {
   void processOrderRecord(OrdersLogRecord rec);
   default IBookState getBookState() {return null;};
+  default void init() throws Exception{};
 }

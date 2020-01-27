@@ -9,7 +9,7 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.BooleanOptionHandler;
 
 @Getter
-class ConverterParameters {
+public class ConverterParameters {
   @Option(name = "-infile", usage = "input filename", required = true)
   private String inputFile;
 
@@ -39,6 +39,9 @@ class ConverterParameters {
 
   @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")
   private Boolean useMql = false;
+
+  @Option(name = "-saveTradeId", handler = BooleanOptionHandler.class, usage = "save trade ID to TICKS data")
+  private Boolean saveTradeId = false;
 
   @Option(name = "-noheader", handler = BooleanOptionHandler.class, usage = "do not write header for columns")
   private Boolean noHeader = false;

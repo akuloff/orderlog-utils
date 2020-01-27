@@ -16,7 +16,6 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -24,10 +23,11 @@ import java.util.Iterator;
 @Log4j
 public class QshFilesConverterApplication {
 
-  private static void processInputFile(IOrdersProcessor ordersProcessor, String inputFileName) throws IOException{
+  private static void processInputFile(IOrdersProcessor ordersProcessor, String inputFileName) throws Exception {
     QshReaderFactory qshReaderFactory = new QshReaderFactory();
     Iterator<OrdersLogRecord> ordersLogRecordIterator = qshReaderFactory.openPath(inputFileName);
-    while ( ordersLogRecordIterator.hasNext() ) {
+    ordersProcessor.init();
+    while (ordersLogRecordIterator.hasNext()) {
       OrdersLogRecord ordersLogRecord = ordersLogRecordIterator.next();
       ordersProcessor.processOrderRecord(ordersLogRecord);
     }
@@ -91,38 +91,21 @@ public class QshFilesConverterApplication {
 
         try {
           writer = new FileWriter(outFileName, true);
-          if (!converterParameters.getNoHeader()) {
-            if (converterParameters.getUseMql()) {
-              writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
-            } else {
-              writer.write("symbol;time;price;volume;deal_id\n");
-            }
-          }
-
-          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getUseMql(),
-            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter())), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorOnlyTicks(new TicksWriterActionListener(writer, dateFormat, converterParameters)), converterParameters.getInputFile());
           writer.flush();
           writer.close();
-        } catch(IOException e) {
+        } catch(Exception e) {
           log.error("file write error", e);
         }
 
       } else if (OutputFileType.BOOKSTATE.equals(converterParameters.getOutputFileType())) {
         try {
           writer = new FileWriter(outFileName, true);
-          if (!converterParameters.getNoHeader()) {
-            if (converterParameters.getUseMql()) {
-              writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
-            } else {
-              writer.write("symbol;time;ask;askvol;bid;bidvol\n"); //format
-            }
-          }
           Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
-          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters.getTimeFormat(), timeQuant, converterParameters.getUseMql(),
-            converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter(), converterParameters.getWriteZero())), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters)), converterParameters.getInputFile());
           writer.flush();
           writer.close();
-        } catch(IOException e) {
+        } catch(Exception e) {
           log.error("file write error", e);
         }
 
@@ -168,7 +151,7 @@ public class QshFilesConverterApplication {
           )), converterParameters.getInputFile());
           writer.flush();
           writer.close();
-        } catch(IOException e) {
+        } catch(Exception e) {
           log.error("file write error", e);
         }
 

@@ -1,8 +1,8 @@
 package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
+import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.TickDataEvent;
-import com.monkeyquant.qsh.model.TimeFilter;
 import lombok.extern.log4j.Log4j;
 
 import java.io.FileWriter;
@@ -11,13 +11,29 @@ import java.sql.Timestamp;
 
 @Log4j
 public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
-
   //TODO separate classes for mql and not
   private final boolean useMql;
+  private final boolean saveTradeId;
 
-  public TicksWriterActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql, int scale, int startTime, int endTime, TimeFilter timeFilter) {
-    super(writer, dateFormat, timeFormat, scale, startTime, endTime, timeFilter);
-    this.useMql = useMql;
+  public TicksWriterActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
+    super(writer, dateFormat, converterParameters);
+    this.useMql = converterParameters.getUseMql();
+    this.saveTradeId = converterParameters.getSaveTradeId();
+  }
+
+  @Override
+  public void init() throws Exception {
+    if (!converterParameters.getNoHeader()) {
+      if (converterParameters.getUseMql()) {
+        writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+      } else {
+        if (converterParameters.getSaveTradeId()) {
+          writer.write("symbol;time;price;volume;deal_id\n");
+        } else {
+          writer.write("symbol;time;price;volume\n");
+        }
+      }
+    }
   }
 
   @Override
@@ -31,7 +47,12 @@ public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
             mqlDateFormat.format(tickTime), mqlTimeFormat.format(tickTime),
             summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), tickData.getAmount()));
         } else {
-          writer.write(String.format("%s;%s;%s;%s\n", dateFormat.format(tickTime), summFormat(tickData.getPrice()), tickData.getAmount(), tickData.getTradeId()));
+          String mainString = String.format("%s;%s;%s;%s", tickData.getInstrument().getCode(), dateFormat.format(tickTime), summFormat(tickData.getPrice()), tickData.getAmount());
+          if (converterParameters.getSaveTradeId()) {
+            writer.write(String.format("%s;%s\n", mainString, tickData.getTradeId()));
+          } else {
+            writer.write(String.format("%s\n", mainString));
+          }
         }
       }
     } catch (IOException e) {

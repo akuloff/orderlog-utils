@@ -4,7 +4,6 @@ package com.monkeyquant.qsh;
 //TODO fix tests
 
 public class FileLoaderTest {
-
   /*
   private void processQshFile(String fpath) throws IOException {
     QshReaderFactory readerFactory = new QshReaderFactory();

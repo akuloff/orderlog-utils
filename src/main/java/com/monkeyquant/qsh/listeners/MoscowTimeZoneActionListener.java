@@ -17,16 +17,16 @@ import java.util.TimeZone;
 @Log4j
 public class MoscowTimeZoneActionListener implements IMarketActionListener {
   protected final FileWriter writer;
-  protected SimpleDateFormat dateFormat;
-  protected SimpleDateFormat timeFormat = null;
-  protected final Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+3"));
+  protected final SimpleDateFormat dateFormat;
+  protected final SimpleDateFormat timeFormat;
+  protected final Calendar calendar;
   protected final SimpleDateFormat mqlDateFormat;
   protected final SimpleDateFormat mqlTimeFormat;
-  protected int startTime = 600;
-  protected int endTime = 1425;
-  protected int scale = 2;
+  protected int startTime;
+  protected int endTime;
+  protected int scale;
   protected final TimeFilter timeFilter;
-  protected ConverterParameters converterParameters;
+  protected final ConverterParameters converterParameters;
 
   protected int getTimeCounter(Date date) {
     calendar.setTime(date);
@@ -55,16 +55,20 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
     return new BigDecimal(value).setScale(scale, BigDecimal.ROUND_CEILING).toString();
   }
 
-  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, String timeFormat, int scale, int startTime, int endTime, TimeFilter timeFilter) {
+  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
+    this.calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+3"));
+    this.converterParameters = converterParameters;
     this.writer = writer;
     this.dateFormat = new SimpleDateFormat(dateFormat);
     this.dateFormat.setCalendar(calendar);
     this.dateFormat.setTimeZone(calendar.getTimeZone());
 
-    if (!StringUtils.isEmpty(timeFormat)) {
-      this.timeFormat = new SimpleDateFormat(timeFormat);
+    if (!StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+      this.timeFormat = new SimpleDateFormat(converterParameters.getTimeFormat());
       this.timeFormat.setCalendar(calendar);
       this.timeFormat.setTimeZone(calendar.getTimeZone());
+    } else {
+      this.timeFormat = null;
     }
 
     mqlDateFormat = new SimpleDateFormat("yyyy.MM.dd");
@@ -74,14 +78,10 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
     mqlTimeFormat.setCalendar(calendar);
     mqlTimeFormat.setTimeZone(calendar.getTimeZone());
 
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.scale = scale;
-    this.timeFilter = timeFilter;
+    this.startTime = converterParameters.getStart();
+    this.endTime = converterParameters.getEnd();
+    this.scale = converterParameters.getScale();
+    this.timeFilter = converterParameters.getTimeFilter();
   }
 
-  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
-    this(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter());
-    this.converterParameters = converterParameters;
-  }
 }

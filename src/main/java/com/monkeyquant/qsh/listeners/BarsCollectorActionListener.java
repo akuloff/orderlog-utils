@@ -8,11 +8,12 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
+import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.TickDataEvent;
-import com.monkeyquant.qsh.model.TimeFilter;
 import com.monkeyquant.qsh.model.TimeOfBar;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileWriter;
 import java.sql.Timestamp;
@@ -31,16 +32,30 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
 
   private final boolean closeOnly;
 
-  public BarsCollectorActionListener(FileWriter writer, String dateFormat, String timeFormat, boolean useMql,
-                                     TradePeriod period, boolean useBookState, int scale, int startTime, int endTime, TimeOfBar timeOfBar, TimeFilter timeFilter, boolean closeOnly) {
-    super(writer, dateFormat, timeFormat, scale, startTime, endTime, timeFilter);
-    this.useMql = useMql;
-    this.useBookState = useBookState;
-    this.barsSaver = new BarsSaver(new BarsCollector(period));
+  @Override
+  public void init() throws Exception {
+    if (!converterParameters.getNoHeader()) {
+      if (converterParameters.getUseMql()) {
+        writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
+      } else {
+        if (StringUtils.isEmpty(converterParameters.getTimeFormat())) {
+          writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+        } else {
+          writer.write("<TICKER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
+        }
+      }
+    }
+  }
+
+  public BarsCollectorActionListener(FileWriter writer, ConverterParameters converterParameters) {
+    super(writer, StringUtils.isEmpty(converterParameters.getDateFormat()) ? "yyyy.MM.dd HH:mm" : converterParameters.getDateFormat(), converterParameters);
+    this.useMql = converterParameters.getUseMql();
+    this.useBookState = converterParameters.getUseBookState();
+    this.period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
+    this.barsSaver = new BarsSaver(new BarsCollector(this.period));
     this.barsSaver.setFillGaps(!useBookState);
-    this.timeOfBar = timeOfBar;
-    this.period = period;
-    this.closeOnly = closeOnly;
+    this.timeOfBar = converterParameters.getBarTime();
+    this.closeOnly = converterParameters.getCloseOnly();
   }
 
   private String getPrices(IBarData barData, boolean closeOnly){

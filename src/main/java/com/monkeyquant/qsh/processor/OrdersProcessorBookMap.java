@@ -1,4 +1,4 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.processor;
 
 import com.alex09x.qsh.reader.type.DealType;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
@@ -6,6 +6,7 @@ import com.monkeyquant.jte.primitives.history.HistoryTick;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
+import com.monkeyquant.qsh.Utils;
 import com.monkeyquant.qsh.model.*;
 
 import java.sql.Timestamp;

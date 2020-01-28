@@ -1,4 +1,4 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.processor;
 
 import com.alex09x.qsh.reader.type.DealType;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
@@ -9,6 +9,8 @@ public abstract class OrdersProcessorDebugStats extends OrdersProcessorBookMap {
     @Getter
     @Setter
     private java.sql.Timestamp beginTime, endTime;
+
+    //TODO dataclass
 
     //сбор статистики для отладки
     int total_recs =0, unk_count = 0;

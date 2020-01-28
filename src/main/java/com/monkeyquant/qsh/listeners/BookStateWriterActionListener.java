@@ -1,18 +1,17 @@
-package com.monkeyquant.qsh;
+package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.qsh.application.ConverterParameters;
-import com.monkeyquant.qsh.listeners.MoscowTimeZoneActionListener;
 import com.monkeyquant.qsh.model.BookStateEvent;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@Log4j
+@Slf4j
 public class BookStateWriterActionListener extends MoscowTimeZoneActionListener {
   private final Integer timeQuantMsec;
   private final boolean mqlTick;
@@ -23,7 +22,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
   private long lastQuant = 0;
 
   public BookStateWriterActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
-    super(writer, dateFormat, converterParameters.getTimeFormat(), converterParameters.getScale(), converterParameters.getStart(), converterParameters.getEnd(), converterParameters.getTimeFilter());
+    super(writer, dateFormat, converterParameters);
     this.mqlTick = converterParameters.getUseMql();
     this.writeZero = converterParameters.getWriteZero();
     this.timeQuantMsec = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;

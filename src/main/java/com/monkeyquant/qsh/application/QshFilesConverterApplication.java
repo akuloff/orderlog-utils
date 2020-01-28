@@ -2,15 +2,14 @@ package com.monkeyquant.qsh.application;
 
 import com.alex09x.qsh.reader.QshReaderFactory;
 import com.alex09x.qsh.reader.type.OrdersLogRecord;
-import com.monkeyquant.jte.primitives.model.TradePeriod;
-import com.monkeyquant.qsh.BookStateWriterActionListener;
-import com.monkeyquant.qsh.OrdersProcessorBookMap;
-import com.monkeyquant.qsh.OrdersProcessorOnlyTicks;
 import com.monkeyquant.qsh.listeners.BarsCollectorActionListener;
+import com.monkeyquant.qsh.listeners.BookStateWriterActionListener;
 import com.monkeyquant.qsh.listeners.TicksWriterActionListener;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.OutputFileType;
-import lombok.extern.log4j.Log4j;
+import com.monkeyquant.qsh.processor.OrdersProcessorBookMap;
+import com.monkeyquant.qsh.processor.OrdersProcessorOnlyTicks;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -20,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
-@Log4j
+@Slf4j
 public class QshFilesConverterApplication {
 
   private static void processInputFile(IOrdersProcessor ordersProcessor, String inputFileName) throws Exception {
@@ -101,7 +100,6 @@ public class QshFilesConverterApplication {
       } else if (OutputFileType.BOOKSTATE.equals(converterParameters.getOutputFileType())) {
         try {
           writer = new FileWriter(outFileName, true);
-          Integer timeQuant = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
           processInputFile(new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, dateFormat, converterParameters)), converterParameters.getInputFile());
           writer.flush();
           writer.close();
@@ -115,48 +113,15 @@ public class QshFilesConverterApplication {
           throw new IllegalArgumentException("-period parameter required for -type=BARS");
         }
 
-        TradePeriod period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());
-
-        if (StringUtils.isEmpty(converterParameters.getDateFormat())) {
-          dateFormat = "yyyy.MM.dd HH:mm";
-        }
-        String timeFormat = converterParameters.getTimeFormat();
-
         try {
           writer = new FileWriter(outFileName, true);
-          if (!converterParameters.getNoHeader()) {
-            if (converterParameters.getUseMql()) {
-              writer.write("<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<TICKVOL>;<VOL>;<SPREAD>\n"); //format
-            } else {
-              if (StringUtils.isEmpty(timeFormat)) {
-                writer.write("<TICKER>;<DATE>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
-              } else {
-                writer.write("<TICKER>;<DATE>;<TIME>;<OPEN>;<HIGH>;<LOW>;<CLOSE>;<VOL>\n"); //format
-              }
-            }
-          }
-          processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(
-            writer,
-            dateFormat,
-            timeFormat,
-            converterParameters.getUseMql(),
-            period,
-            converterParameters.getUseBookState(),
-            converterParameters.getScale(),
-            converterParameters.getStart(),
-            converterParameters.getEnd(),
-            converterParameters.getBarTime(),
-            converterParameters.getTimeFilter(),
-            converterParameters.getCloseOnly()
-          )), converterParameters.getInputFile());
+          processInputFile(new OrdersProcessorBookMap(new BarsCollectorActionListener(writer, converterParameters)), converterParameters.getInputFile());
           writer.flush();
           writer.close();
         } catch(Exception e) {
           log.error("file write error", e);
         }
-
       }
-
 
       System.out.println("processingTime: " + (System.currentTimeMillis() - startTime));
 

@@ -10,16 +10,16 @@ import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.jte.primitives.model.TradePeriod;
 import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.BookStateEvent;
+import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import com.monkeyquant.qsh.model.TimeOfBar;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.Date;
 
-@Log4j
+@Slf4j
 public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   private final boolean useMql;
   private final BarsSaver barsSaver;
@@ -47,8 +47,13 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
     }
   }
 
-  public BarsCollectorActionListener(FileWriter writer, ConverterParameters converterParameters) {
-    super(writer, StringUtils.isEmpty(converterParameters.getDateFormat()) ? "yyyy.MM.dd HH:mm" : converterParameters.getDateFormat(), converterParameters);
+  @Override
+  protected String defaultDateFormat() {
+    return "yyyy.MM.dd HH:mm";
+  }
+
+  public BarsCollectorActionListener(IDataWriter writer, ConverterParameters converterParameters) {
+    super(writer, converterParameters);
     this.useMql = converterParameters.getUseMql();
     this.useBookState = converterParameters.getUseBookState();
     this.period = TradePeriod.fromString(converterParameters.getBarPeriod().toString());

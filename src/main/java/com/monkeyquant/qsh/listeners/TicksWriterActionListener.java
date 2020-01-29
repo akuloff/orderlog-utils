@@ -2,21 +2,20 @@ package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.qsh.application.ConverterParameters;
+import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.TickDataEvent;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Timestamp;
 
-@Log4j
+@Slf4j
 public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
   //TODO separate classes for mql and not
   private final boolean useMql;
   private final boolean saveTradeId;
 
-  public TicksWriterActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
-    super(writer, dateFormat, converterParameters);
+  public TicksWriterActionListener(IDataWriter writer, ConverterParameters converterParameters) {
+    super(writer, converterParameters);
     this.useMql = converterParameters.getUseMql();
     this.saveTradeId = converterParameters.getSaveTradeId();
   }
@@ -34,6 +33,11 @@ public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
         }
       }
     }
+  }
+
+  @Override
+  protected String defaultDateFormat() {
+    return "yyyy.MM.dd HH:mm:ss.SSS";
   }
 
   @Override
@@ -55,7 +59,7 @@ public class TicksWriterActionListener extends MoscowTimeZoneActionListener {
           }
         }
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error("write exception", e);
     }
   }

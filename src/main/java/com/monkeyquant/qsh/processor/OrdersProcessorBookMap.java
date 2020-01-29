@@ -7,30 +7,24 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
 import com.monkeyquant.qsh.Utils;
-import com.monkeyquant.qsh.model.*;
+import com.monkeyquant.qsh.model.BookStateEvent;
+import com.monkeyquant.qsh.model.IMarketActionListener;
+import com.monkeyquant.qsh.model.MapBookState;
+import com.monkeyquant.qsh.model.TickDataEvent;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
 
-public class OrdersProcessorBookMap implements IOrdersProcessor{
+public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
     protected final MapBookState bstate = new MapBookState();
     protected final HashMap<Long, OrdersLogRecord> ordersMap = new HashMap<>();
-    private long lastDealId = 0;
-    private IMarketActionListener marketActionListener = null;
-    private TradeInstrument instrument = null;
 
     public OrdersProcessorBookMap(IMarketActionListener marketActionListener) {
-        this.marketActionListener = marketActionListener;
+        super(marketActionListener);
     }
 
     public OrdersProcessorBookMap() {
-    }
-
-    @Override
-    public void init() throws Exception {
-        if (marketActionListener != null) {
-            marketActionListener.init();
-        }
+        super(null);
     }
 
     public IBookState getBookState() {

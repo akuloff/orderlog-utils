@@ -6,12 +6,7 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.MarketDealType;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 public class Utils {
@@ -118,28 +113,6 @@ public class Utils {
     }
   }
 
-
-  public static void bookImportTest(String fileName, char delim, String symb_code){
-    CSVRecord record;
-    String symbol, askp, bidp;
-
-    try {
-      Iterator<CSVRecord> records = CSVFormat.RFC4180.withHeader().withDelimiter(delim).parse(new BufferedReader(new FileReader(fileName))).iterator();
-      while( records.hasNext() ) {
-        record = records.next();
-        symbol = record.get("symbol");
-
-        if (symbol.equals(symb_code)){
-          askp = record.get("ask");
-          bidp = record.get("bid");
-          System.out.println(askp + "\t" + bidp);
-        }
-
-      }
-    } catch (IOException ex) {
-      System.out.println(ex.getMessage());
-    }
-  }
 
   public static void printOrderRecord(OrdersLogRecord rec){
     System.out.println("ord: " + rec.getOrderId() +  " |price: " + rec.getOrderPrice() +

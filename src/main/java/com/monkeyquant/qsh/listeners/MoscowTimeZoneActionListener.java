@@ -1,12 +1,12 @@
 package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.qsh.application.ConverterParameters;
+import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.TimeFilter;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,9 +14,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-@Log4j
-public class MoscowTimeZoneActionListener implements IMarketActionListener {
-  protected final FileWriter writer;
+@Slf4j
+public abstract class MoscowTimeZoneActionListener implements IMarketActionListener {
+  protected final IDataWriter writer;
   protected final SimpleDateFormat dateFormat;
   protected final SimpleDateFormat timeFormat;
   protected final Calendar calendar;
@@ -55,11 +55,13 @@ public class MoscowTimeZoneActionListener implements IMarketActionListener {
     return new BigDecimal(value).setScale(scale, BigDecimal.ROUND_CEILING).toString();
   }
 
-  public MoscowTimeZoneActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
+  protected abstract String defaultDateFormat();
+
+  public MoscowTimeZoneActionListener(IDataWriter writer, ConverterParameters converterParameters) {
     this.calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+3"));
     this.converterParameters = converterParameters;
     this.writer = writer;
-    this.dateFormat = new SimpleDateFormat(dateFormat);
+    this.dateFormat = new SimpleDateFormat(StringUtils.isEmpty(converterParameters.getDateFormat()) ? defaultDateFormat() : converterParameters.getDateFormat());
     this.dateFormat.setCalendar(calendar);
     this.dateFormat.setTimeZone(calendar.getTimeZone());
 

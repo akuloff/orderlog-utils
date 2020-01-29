@@ -4,10 +4,9 @@ import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.BookStateEvent;
+import com.monkeyquant.qsh.model.IDataWriter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -21,8 +20,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
 
   private long lastQuant = 0;
 
-  public BookStateWriterActionListener(FileWriter writer, String dateFormat, ConverterParameters converterParameters) {
-    super(writer, dateFormat, converterParameters);
+  public BookStateWriterActionListener(IDataWriter writer, ConverterParameters converterParameters) {
+    super(writer, converterParameters);
     this.mqlTick = converterParameters.getUseMql();
     this.writeZero = converterParameters.getWriteZero();
     this.timeQuantMsec = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
@@ -37,6 +36,11 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
         writer.write("symbol;time;ask;askvol;bid;bidvol\n"); //format
       }
     }
+  }
+
+  @Override
+  protected String defaultDateFormat() {
+    return "yyyy.MM.dd HH:mm:ss.SSS";
   }
 
   @Override
@@ -87,7 +91,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneActionListener 
           }
         }
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       log.error("write exception", e);
     }
   }

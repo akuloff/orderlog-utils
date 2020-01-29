@@ -5,25 +5,18 @@ import com.monkeyquant.jte.primitives.history.HistoryTick;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
 import com.monkeyquant.qsh.Utils;
 import com.monkeyquant.qsh.model.IMarketActionListener;
-import com.monkeyquant.qsh.model.IOrdersProcessor;
 import com.monkeyquant.qsh.model.TickDataEvent;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * передает только событие onNewTick, не содержит bookState
  */
 
-public class OrdersProcessorOnlyTicks implements IOrdersProcessor{
-    private final IMarketActionListener marketActionListener;
-    private long lastDealId = 0;
-    private TradeInstrument instrument = null;
+@Slf4j
+public class OrdersProcessorOnlyTicks extends AbstractOrdersProcessorWithListener {
 
     public OrdersProcessorOnlyTicks(IMarketActionListener marketActionListener) {
-        this.marketActionListener = marketActionListener;
-    }
-
-    @Override
-    public void init() throws Exception {
-        marketActionListener.init();
+        super(marketActionListener);
     }
 
     @Override
@@ -52,7 +45,7 @@ public class OrdersProcessorOnlyTicks implements IOrdersProcessor{
                     try {
                         marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(rec.getTime()).build());
                     } catch (Exception e) {
-                        System.out.println(e);
+                        log.warn("onNewTick error", e);
                     }
                     lastDealId = rec.getDealId();
                 }

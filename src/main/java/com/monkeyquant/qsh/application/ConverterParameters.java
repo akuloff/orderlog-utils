@@ -1,7 +1,7 @@
 package com.monkeyquant.qsh.application;
 
 import com.monkeyquant.qsh.model.BarPeriod;
-import com.monkeyquant.qsh.model.OutputFileType;
+import com.monkeyquant.qsh.model.OutputFormatType;
 import com.monkeyquant.qsh.model.TimeFilter;
 import com.monkeyquant.qsh.model.TimeOfBar;
 import lombok.Getter;
@@ -16,8 +16,8 @@ public class ConverterParameters {
   @Option(name = "-outfile", usage = "output filename")
   private String outputFile;
 
-  @Option(name = "-type", usage = "output file type", required = true)
-  private OutputFileType outputFileType;
+  @Option(name = "-type", usage = "output format type", required = true)
+  private OutputFormatType outputFormatType;
 
   @Option(name = "-period", usage = "period for BARS file type", depends = {"-type=BARS"})
   private BarPeriod barPeriod;

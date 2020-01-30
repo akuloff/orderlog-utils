@@ -64,4 +64,9 @@ public class ConverterParameters {
   @Option(name = "-timefilter", usage = "market time filter, default = NONE")
   private TimeFilter timeFilter = TimeFilter.NONE;
 
+  @Option(name = "-batch", handler = BooleanOptionHandler.class, usage = "batch files procesing (from file mask)")
+  private Boolean batchProcess = false;
+
+  @Option(name = "-onefile", handler = BooleanOptionHandler.class, usage = "use one file for output (only with batch processing)", depends = {"-batch"})
+  private Boolean oneFileProcess = false;
 }

@@ -42,7 +42,8 @@ public class MainExportCommandRunner implements CommandLineRunner {
   }
 
   private static String initOutFile(ConverterParameters parameters, int counter){
-    String outFileName, appender = "";
+    String outFileName;
+    StringBuilder sb = new StringBuilder();
 
     String outfile = parameters.getOutputFile();
     if (!StringUtils.isEmpty(outfile)) {
@@ -51,31 +52,32 @@ public class MainExportCommandRunner implements CommandLineRunner {
 
     OutputFormatType fileType = parameters.getOutputFormatType();
 
+    if (parameters.getTimeQuant() != null && parameters.getTimeQuant() > 0) {
+      sb.append("_t").append(parameters.getTimeQuant().toString());
+    }
+
     switch (fileType) {
       case TICKS:
-        appender = "_ticks.csv";
+        sb.append("_ticks.csv");
         break;
       case BARS:
         if (parameters.getBarPeriod() != null) {
-          appender = "_" + parameters.getBarPeriod().toString();
+          sb.append("_").append(parameters.getBarPeriod().toString());
         }
-        appender = appender + "_bars.csv";
+        sb.append("_bars.csv");
         break;
       case BOOKSTATE:
-        if (parameters.getTimeQuant() != null && parameters.getTimeQuant() > 0) {
-          appender = "_t" + parameters.getTimeQuant();
-        }
-        appender = appender + "_book.csv";
+        sb.append("_book.csv");
         break;
       default:
-        appender = ".csv";
+        sb.append(".csv");
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
     if (counter >= 0) {
-      outFileName = String.format("out_%s_%s%s", sdf.format(new Date()), counter, appender);
+      outFileName = String.format("out_%s_%s%s", sdf.format(new Date()), counter, sb.toString());
     } else {
-      outFileName = String.format("out_%s%s", sdf.format(new Date()), appender);
+      outFileName = String.format("out_%s%s", sdf.format(new Date()), sb.toString());
     }
     return outFileName;
   }

@@ -34,7 +34,7 @@ public class ConverterParameters {
   @Option(name = "-timeFormat", usage = "time and date format")
   private String timeFormat;
 
-  @Option(name = "-timeQuant", usage = "time quant in msec for BOOKSTATE")
+  @Option(name = "-timeQuant", usage = "time quant in msec for BOOKSTATE or TICKS")
   private Integer timeQuant;
 
   @Option(name = "-mql", handler = BooleanOptionHandler.class, usage = "use MQL tick or bar format")

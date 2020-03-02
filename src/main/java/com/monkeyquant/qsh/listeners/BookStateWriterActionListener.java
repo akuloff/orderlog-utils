@@ -11,20 +11,16 @@ import java.util.Date;
 import java.util.List;
 
 @Slf4j
-public class BookStateWriterActionListener extends MoscowTimeZoneActionListener {
-  private final Integer timeQuantMsec;
+public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTimeQuant {
   private final boolean mqlTick;
   private PriceRecord lastAsk = PriceRecord.builder().price(0d).value(0).build();
   private PriceRecord lastBid = PriceRecord.builder().price(0d).value(0).build();
   private final boolean writeZero;
 
-  private long lastQuant = 0;
-
   public BookStateWriterActionListener(IDataWriter writer, ConverterParameters converterParameters) {
     super(writer, converterParameters);
     this.mqlTick = converterParameters.getUseMql();
     this.writeZero = converterParameters.getWriteZero();
-    this.timeQuantMsec = converterParameters.getTimeQuant() != null ? converterParameters.getTimeQuant() : 0;
   }
 
   @Override

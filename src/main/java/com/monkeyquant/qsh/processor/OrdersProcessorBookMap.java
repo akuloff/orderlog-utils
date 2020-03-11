@@ -11,20 +11,44 @@ import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.MapBookState;
 import com.monkeyquant.qsh.model.TickDataEvent;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
 
+@Slf4j
 public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
     protected final MapBookState bstate = new MapBookState();
+
+    //TODO use alternative fast map - like OpenHFT, Trove, etc
     protected final HashMap<Long, OrdersLogRecord> ordersMap = new HashMap<>();
 
-    public OrdersProcessorBookMap(IMarketActionListener marketActionListener) {
+    private final boolean sendTicks;
+
+    private int maxMapSize = 0;
+
+    public OrdersProcessorBookMap(IMarketActionListener marketActionListener, boolean sendTicks) {
         super(marketActionListener);
+        this.sendTicks = sendTicks;
+    }
+
+    public OrdersProcessorBookMap(IMarketActionListener marketActionListener) {
+        this(marketActionListener, false);
+    }
+
+    @Override
+    public void end() throws Exception {
+        super.end();
+        log.info("max map size: {}, map stats - putCount: {}, setCount: {}, getCount: {}", maxMapSize, bstate.getPutCount(), bstate.getSetCount(), bstate.getGetCount());
+    }
+
+    public OrdersProcessorBookMap(boolean sendTicks) {
+        super(null);
+        this.sendTicks = false;
     }
 
     public OrdersProcessorBookMap() {
-        super(null);
+        this(false);
     }
 
     public IBookState getBookState() {
@@ -44,6 +68,10 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
             } catch (Exception e) {
                 System.out.println(e);
             }
+        }
+
+        if (ordersMap.size() > maxMapSize) {
+            maxMapSize = ordersMap.size();
         }
     }
 
@@ -66,7 +94,7 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
                     if (ordersMap.containsKey(orderId)) { //заяка уже была добавлена
                         oldrec = ordersMap.get(orderId);
                         int volume;
-                        if (rec.getRestVolume() == 0) { //объема в заявке не осталось (значит пеернос заявки - то же что и удаление и постановка новой)
+                        if (rec.getRestVolume() == 0) { //объема в заявке не осталось (значит перенос заявки - то же что и удаление и постановка новой)
                             ordersMap.remove(orderId);
                             volume = Math.negateExact(oldrec.getRestVolume());
                         } else {
@@ -96,10 +124,10 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
                         }
                         changeBookState(rec, rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), Math.negateExact(rec.getVolume()));
 
-                        if (marketActionListener != null) {
-                            if(!rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
+                        if (marketActionListener != null && sendTicks) {
+                            if (!rec.isCanceled() && !rec.isCrossTrade() && !rec.isMoved() && !rec.isNonSystem() && rec.getDealId() > 0 && !rec.isCounter()
                               && rec.getDealId() != lastDealId && rec.getDealPrice() > 0 && rec.isEndTransaction()
-                            ){
+                            ) {
                                 ITickData tickData = HistoryTick.builder()
                                   .instrument(instrument)
                                   .buyFlag(Utils.buyFlagFromDealType(Utils.fromQshTypeReverse(oldrec.getType())))
@@ -111,7 +139,7 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
 
                                 try {
                                     marketActionListener.onNewTick(TickDataEvent.builder().time(rec.getTime()).tickData(tickData).build());
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     System.out.println(e);
                                 }
                                 lastDealId = rec.getDealId();
@@ -125,8 +153,8 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
                     if (ordersMap.containsKey(orderId)) {
                         oldrec = ordersMap.get(orderId);
                         changeBookState(rec, rec.getTime(), oldrec.getType(), oldrec.getOrderPrice(), Math.negateExact(oldrec.getRestVolume()));
+                        ordersMap.remove(orderId);
                     }
-                    ordersMap.remove(orderId);
                 } else if (rec.isCounter()) {
                     if (!rec.isAdd() && !rec.isFill() && !rec.isQuote() && !rec.isMoved() && !rec.isCrossTrade() && !rec.isCanceled() && rec.isEndTransaction()) {
                         if (ordersMap.containsKey(orderId)) { //ликвидация сделки
@@ -143,7 +171,6 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
                     ordersMap.remove(orderId);
                 }
             }
-
 
         }
     }

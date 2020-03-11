@@ -40,7 +40,7 @@ public abstract class MoscowTimeZoneActionListener implements IMarketActionListe
 
   protected boolean checkTime(Date date) {
     int ctime = getTimeCounter(date);
-    boolean rval =  ctime >= startTime && ctime <= endTime;
+    boolean rval = ctime >= startTime && ctime <= endTime;
     if (rval && timeFilter != TimeFilter.NONE) {
       switch (timeFilter) {
         case FORTS:

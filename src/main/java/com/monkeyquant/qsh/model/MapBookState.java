@@ -4,6 +4,7 @@ import com.alex09x.qsh.reader.type.DealType;
 import com.monkeyquant.jte.primitives.interfaces.IBookState;
 import com.monkeyquant.jte.primitives.model.PriceRecord;
 import com.monkeyquant.jte.primitives.model.TradeInstrument;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
@@ -16,9 +17,17 @@ public class MapBookState implements IBookState {
     @Setter
     private Timestamp date;
 
-    protected long putCount = 0;
-    protected long setCount = 0;
-    protected long removeCount = 0;
+    @Getter
+    private long putCount = 0;
+
+    @Getter
+    private long setCount = 0;
+
+    @Getter
+    private long removeCount = 0;
+
+    @Getter
+    private long getCount = 0;
 
     @Setter
     private TradeInstrument instrument;
@@ -28,39 +37,35 @@ public class MapBookState implements IBookState {
         return instrument;
     }
 
-    public void clearAll(){
+    public void clearAll() {
         buyPositions.clear();
         sellPositions.clear();
         putCount = setCount = removeCount = 0;
     }
 
-    private void addToTreeMap(TreeMap<Double, Integer> map, double price, int value){
+    private void addToMap(Map<Double, Integer> map, double price, int value){
         Integer mapValue;
         mapValue = map.get(price);
         int newValue;
         if (mapValue != null) {
             newValue = mapValue + value;
-//            if (newValue == 0) {
-//                removeCount ++;
-//                map.remove(price);
-//            } else {
-//                setCount ++;
-//                map.replace(price, newValue);
-//            }
-            setCount ++;
-            map.replace(price, newValue);
+            setCount++;
         } else {
-            putCount ++;
-            map.put(price, value);
+            putCount++;
+            newValue = value;
         }
+        map.put(price, newValue);
     }
 
     public void addForDealType(Timestamp timestamp, DealType dtype, double price, int value){
         this.date = timestamp;
-        if (dtype == DealType.BUY) {
-            addToTreeMap(buyPositions, price, value);
-        } else if (dtype == DealType.SELL) {
-            addToTreeMap(sellPositions, price, value);
+        switch (dtype) {
+            case BUY:
+                addToMap(buyPositions, price, value);
+                break;
+            case SELL:
+                addToMap(sellPositions, price, value);
+                break;
         }
     }
 
@@ -78,6 +83,7 @@ public class MapBookState implements IBookState {
                 if (cnt >= total) break;
             }
         }
+        getCount ++;
         return records;
     }
 
@@ -94,6 +100,7 @@ public class MapBookState implements IBookState {
                 if (totalValue >= needVolume) break;
             }
         }
+        getCount ++;
         return records;
     }
 

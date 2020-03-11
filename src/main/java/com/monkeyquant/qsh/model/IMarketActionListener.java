@@ -4,4 +4,5 @@ public interface IMarketActionListener {
   default void onBookChange(BookStateEvent bookStateEvent) throws Exception{};
   default void onNewTick(TickDataEvent tickDataEvent) throws Exception{};
   default void init() throws Exception {};
+  default void end() throws Exception {};
 }

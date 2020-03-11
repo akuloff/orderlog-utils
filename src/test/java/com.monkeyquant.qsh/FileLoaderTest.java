@@ -3,6 +3,8 @@ package com.monkeyquant.qsh;
 
 //TODO fix tests
 
+//TODO implement testing for TICKS and BOOKSTATE
+
 public class FileLoaderTest {
   /*
   private void processQshFile(String fpath) throws IOException {

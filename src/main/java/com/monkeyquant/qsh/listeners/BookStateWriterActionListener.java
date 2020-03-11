@@ -16,22 +16,51 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
   private PriceRecord lastAsk = PriceRecord.builder().price(0d).value(0).build();
   private PriceRecord lastBid = PriceRecord.builder().price(0d).value(0).build();
   private final boolean writeZero;
+  private long totalEvents = 0;
+  private final int bookSize;
+
+  private String formatTemplate;
 
   public BookStateWriterActionListener(IDataWriter writer, ConverterParameters converterParameters) {
     super(writer, converterParameters);
     this.mqlTick = converterParameters.getUseMql();
     this.writeZero = converterParameters.getWriteZero();
+    this.bookSize = converterParameters.getBookSize();
+    if (bookSize > 0 && mqlTick) {
+      throw new IllegalArgumentException("MQL format incopatible with book_size > 0");
+    }
   }
 
   @Override
   public void init() throws Exception {
     if (!converterParameters.getNoHeader()) {
-      if (converterParameters.getUseMql()) {
+      if (this.mqlTick) {
         writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
+        formatTemplate = "%s;%s;%s;%s;%s;1\n";
       } else {
-        writer.write("symbol;time;ask;askvol;bid;bidvol\n"); //format
+        if (bookSize > 0) {
+          StringBuilder sb = new StringBuilder("symbol;time;");
+          StringBuilder sbf = new StringBuilder("%s;%s;");
+          for (int i = 1; i < bookSize + 1; i++) {
+            sb.append(String.format("ask%s;askvol%s;bid%s;bidvol%s;", i, i, i, i));
+            sbf.append("%s;%s;%s;%s;");
+          }
+          String header = sb.toString();
+          formatTemplate = sbf.toString();
+          header = header.substring(0, header.length() - 1);
+          formatTemplate = formatTemplate.substring(0, formatTemplate.length() - 1) + "\n";
+          writer.write(header + "\n");
+        } else {
+          writer.write("symbol;time;ask;askvol;bid;bidvol\n"); //format
+          formatTemplate = "%s;%s;%s;%s;%s;%s\n";
+        }
       }
     }
+  }
+
+  @Override
+  public void end() throws Exception {
+    log.info("total events: {}", totalEvents);
   }
 
   @Override
@@ -41,49 +70,74 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
 
   @Override
   public void onBookChange(BookStateEvent bookStateEvent) {
+    totalEvents ++;
     try {
       //writer.write(String.format("%s;%s;%s;%s\n", dateFormat.format(tickData.getTime()), tickData.getPrice(), tickData.getVolume(), tickData.getDealId()));
       IBookState bookState = bookStateEvent.getBookState();
-      List<PriceRecord> askPrices = bookState.getAskPositionsForVolume(1);
-      List<PriceRecord> bidPrices = bookState.getBidPositionsForVolume(1);
-      if ((askPrices.size() > 0 && bidPrices.size() > 0) || writeZero) {
 
-        Date eventDate = bookStateEvent.getTime();
-        boolean doWrite = checkTime(eventDate);
+      Date eventDate = bookStateEvent.getTime();
+      boolean doWrite = checkTime(eventDate);
 
-        if (doWrite && timeQuantMsec > 0) {
-          long currentQuant = (eventDate.getTime() / timeQuantMsec) * timeQuantMsec;
-          doWrite = currentQuant > lastQuant;
-          if (doWrite) {
-            lastQuant = currentQuant;
-            eventDate = new Date(currentQuant);
-          }
-        }
-
+      if (doWrite && timeQuantMsec > 0) {
+        long currentQuant = (eventDate.getTime() / timeQuantMsec) * timeQuantMsec;
+        doWrite = currentQuant > lastQuant;
         if (doWrite) {
-          PriceRecord ask, bid;
-          if (askPrices.size() > 0) {
-            ask = askPrices.get(0);
-          } else {
-            ask = PriceRecord.builder().price(0d).value(1).build();
-          }
-          if (bidPrices.size() > 0) {
-            bid = bidPrices.get(0);
-          } else {
-            bid = PriceRecord.builder().price(0d).value(1).build();
+          lastQuant = currentQuant;
+          eventDate = new Date(currentQuant);
+        }
+      }
+
+      List<PriceRecord> askPrices;
+      List<PriceRecord> bidPrices;
+
+
+      if (doWrite) {
+        if (bookSize > 0) {
+          askPrices = bookState.getAskPositions(bookSize);
+          bidPrices = bookState.getBidPositions(bookSize);
+          if (askPrices.size() >= bookSize && bidPrices.size() >= bookSize) {
+            StringBuilder outsb = new StringBuilder(String.format("%s;%s;", bookState.getInstrument().getCode(), dateFormat.format(eventDate)));
+            for (int i=0; i<bookSize; i++){
+              //sb.append(String.format("ask%s;askvol%s;bid%s;bidvol%s;", i, i, i, i));
+              PriceRecord ask = askPrices.get(i);
+              PriceRecord bid = bidPrices.get(i);
+              outsb.append(String.format("%s;%s;%s;%s", summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue()));
+              if (i < bookSize - 1) {
+                outsb.append(";");
+              }
+            }
+            writer.write(outsb.append("\n").toString());
           }
 
-          if (!ask.equals(lastAsk) || !bid.equals(lastBid)) {
-            String outs;
-            if (mqlTick) {
-              outs = String.format("%s;%s;%s;%s;%s;1\n", mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), summFormat(bid.getPrice()), summFormat(ask.getPrice()), summFormat(ask.getPrice()));
+        } else {
+          askPrices = bookState.getAskPositionsForVolume(1);
+          bidPrices = bookState.getBidPositionsForVolume(1);
+
+          if ((askPrices.size() > 0 && bidPrices.size() > 0) || writeZero) {
+            PriceRecord ask, bid;
+            if (askPrices.size() > 0) {
+              ask = askPrices.get(0);
             } else {
-              outs = String.format("%s;%s;%s;%s;%s;%s\n", bookState.getInstrument().getCode(), dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
+              ask = PriceRecord.builder().price(0d).value(1).build();
             }
-            //outs = "symbol;time;ask;bid;askvol;bidvol\n";
-            writer.write(outs);
-            lastAsk = ask;
-            lastBid = bid;
+            if (bidPrices.size() > 0) {
+              bid = bidPrices.get(0);
+            } else {
+              bid = PriceRecord.builder().price(0d).value(1).build();
+            }
+
+            if ((!ask.equals(lastAsk) || !bid.equals(lastBid)) || timeQuantMsec > 0) {
+              String outs;
+              if (mqlTick) {
+                outs = String.format(formatTemplate, mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), summFormat(bid.getPrice()), summFormat(ask.getPrice()), summFormat(ask.getPrice()));
+              } else {
+                outs = String.format(formatTemplate, bookState.getInstrument().getCode(), dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
+              }
+              //outs = "symbol;time;ask;bid;askvol;bidvol\n";
+              writer.write(outs);
+              lastAsk = ask;
+              lastBid = bid;
+            }
           }
         }
       }

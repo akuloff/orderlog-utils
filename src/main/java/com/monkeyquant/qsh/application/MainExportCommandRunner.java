@@ -146,8 +146,10 @@ public class MainExportCommandRunner implements CommandLineRunner {
         sendFileToProcessor(ordersProcessor, converterParameters.getInputFile(), writer, true, true);
       }
 
+      ordersProcessor.end();
+
     } catch (Exception e) {
-      log.warn(e.getMessage());
+      log.warn(e.getMessage(), e);
       System.out.println("\nusage params:\n");
       parser.printUsage(System.out);
     }

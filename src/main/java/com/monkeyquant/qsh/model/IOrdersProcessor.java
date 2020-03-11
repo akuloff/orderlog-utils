@@ -7,4 +7,5 @@ public interface IOrdersProcessor {
   void processOrderRecord(OrdersLogRecord rec);
   default IBookState getBookState() {return null;};
   default void init() throws Exception{};
+  default void end() throws Exception{};
 }

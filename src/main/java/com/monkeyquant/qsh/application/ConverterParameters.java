@@ -69,4 +69,7 @@ public class ConverterParameters {
 
   @Option(name = "-onefile", handler = BooleanOptionHandler.class, usage = "use one file for output (only with batch processing)", depends = {"-batch"})
   private Boolean oneFileProcess = false;
+
+  @Option(name = "-book_size", usage = "size of book to export for BOOKSTATE, when 0 - only best ask/bid")
+  private Integer bookSize = 0;
 }

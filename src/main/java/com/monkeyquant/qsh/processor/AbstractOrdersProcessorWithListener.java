@@ -19,4 +19,11 @@ public abstract class AbstractOrdersProcessorWithListener implements IOrdersProc
       marketActionListener.init();
     }
   }
+
+  @Override
+  public void end() throws Exception {
+    if (marketActionListener != null) {
+      marketActionListener.end();
+    }
+  }
 }

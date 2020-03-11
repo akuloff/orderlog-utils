@@ -96,19 +96,23 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
           askPrices = bookState.getAskPositions(bookSize);
           bidPrices = bookState.getBidPositions(bookSize);
           if (askPrices.size() >= bookSize && bidPrices.size() >= bookSize) {
-            StringBuilder outsb = new StringBuilder(String.format("%s;%s;", bookState.getInstrument().getCode(), dateFormat.format(eventDate)));
-            for (int i=0; i<bookSize; i++){
-              //sb.append(String.format("ask%s;askvol%s;bid%s;bidvol%s;", i, i, i, i));
-              PriceRecord ask = askPrices.get(i);
-              PriceRecord bid = bidPrices.get(i);
-              outsb.append(String.format("%s;%s;%s;%s", summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue()));
-              if (i < bookSize - 1) {
-                outsb.append(";");
+            PriceRecord firstAsk = askPrices.get(0);
+            PriceRecord firstBid = bidPrices.get(0);
+            if ((!firstAsk.equals(lastAsk) || !firstBid.equals(lastBid)) || timeQuantMsec > 0) {
+              StringBuilder outsb = new StringBuilder(String.format("%s;%s;", bookState.getInstrument().getCode(), dateFormat.format(eventDate)));
+              for (int i = 0; i < bookSize; i++) {
+                PriceRecord ask = askPrices.get(i);
+                PriceRecord bid = bidPrices.get(i);
+                outsb.append(String.format("%s;%s;%s;%s", summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue()));
+                if (i < bookSize - 1) {
+                  outsb.append(";");
+                }
               }
+              writer.write(outsb.append("\n").toString());
+              lastAsk = firstAsk;
+              lastBid = firstBid;
             }
-            writer.write(outsb.append("\n").toString());
           }
-
         } else {
           askPrices = bookState.getAskPositionsForVolume(1);
           bidPrices = bookState.getBidPositionsForVolume(1);
@@ -133,7 +137,6 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
               } else {
                 outs = String.format(formatTemplate, bookState.getInstrument().getCode(), dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
               }
-              //outs = "symbol;time;ask;bid;askvol;bidvol\n";
               writer.write(outs);
               lastAsk = ask;
               lastBid = bid;

@@ -8,6 +8,8 @@ import com.monkeyquant.qsh.model.IMarketActionListener;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
+
 /**
  * передает только событие onNewTick, не содержит bookState
  */
@@ -43,7 +45,7 @@ public class OrdersProcessorOnlyTicks extends AbstractOrdersProcessorWithListene
                     }
                     tickData.setInstrument(instrument);
                     try {
-                        marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(rec.getTime()).build());
+                        marketActionListener.onNewTick(TickDataEvent.builder().tickData(tickData).time(Instant.ofEpochMilli(rec.getTime().getTime())).build());
                     } catch (Exception e) {
                         log.warn("onNewTick error", e);
                     }

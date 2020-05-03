@@ -81,7 +81,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
     }
   }
 
-  private void processTickData(Timestamp tickTime, ITickData tickData, int spread) throws Exception {
+  private void processTickData(ITickData tickData, int spread) throws Exception {
       boolean isBarAdded = false;
 
       if (checkTime(tickData.getDate())) {
@@ -137,13 +137,15 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
       PriceRecord bidRecord = bookState.getBestBid();
       if (lastBookTime == null) {
         lastBookTime = onTime;
+      } else if (onTime.getTime() < lastBookTime.getTime()){
+        log.warn("BookStateEvent data is before lastBookTime, event: {},  lastEventDate: {}", onTime, lastBookTime);
       }
       if (bidRecord != null) {
         double curBid = bidRecord.getPrice();
         if (curBid != lastBid || (onTime.getTime() - lastBookTime.getTime() > period.getPeriodMsec())) {
           lastBid = curBid;
           ITickData tickData = new HistoryTick(bookState.getInstrument(), onTime, lastBid, 1, "1", false, "", true);
-          processTickData(onTime, tickData, 1);
+          processTickData(tickData, 1);
           lastBookTime = onTime;
         }
       }
@@ -153,7 +155,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
   @Override
   public void onNewTick(TickDataEvent tickDataEvent) throws Exception{
     if (!useBookState) {
-      processTickData(tickDataEvent.getTime(), tickDataEvent.getTickData(), 1);
+      processTickData(tickDataEvent.getTickData(), 1);
     }
   }
 }

@@ -4,9 +4,11 @@ import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @Builder
 public class TickDataEvent {
-  java.sql.Timestamp time;
+  Instant time;
   ITickData tickData;
 }

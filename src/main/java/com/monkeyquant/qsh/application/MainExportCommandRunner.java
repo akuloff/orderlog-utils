@@ -41,7 +41,7 @@ public class MainExportCommandRunner implements CommandLineRunner {
     }
   }
 
-  private static String initOutFile(ConverterParameters parameters, int counter){
+  private static String initOutFile(ConverterParameters parameters, String inputFilename, int counter){
     String outFileName;
     StringBuilder sb = new StringBuilder();
 
@@ -75,9 +75,9 @@ public class MainExportCommandRunner implements CommandLineRunner {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
     if (counter >= 0) {
-      outFileName = String.format("out_%s_%s%s", sdf.format(new Date()), counter, sb.toString());
+      outFileName = String.format("%s_out_%s_%s%s", inputFilename, sdf.format(new Date()), counter, sb.toString());
     } else {
-      outFileName = String.format("out_%s%s", sdf.format(new Date()), sb.toString());
+      outFileName = String.format("%s_out_%s%s", inputFilename, sdf.format(new Date()), sb.toString());
     }
     return outFileName;
   }
@@ -99,12 +99,25 @@ public class MainExportCommandRunner implements CommandLineRunner {
     }
   }
 
+
+  private FileProcessingParams initOutFileParams(ConverterParameters converterParameters, String inputFileName, int entryCounter) throws Exception{
+    String outFileName = initOutFile(converterParameters, inputFileName, entryCounter);
+    FileWriter writer = new FileWriter(outFileName, true);
+    FileDataWriterImpl dataWriter = new FileDataWriterImpl(writer);
+    IOrdersProcessor ordersProcessor = ordersProcessorFactory.getOrdersProcessor(dataWriter, converterParameters);
+
+    return FileProcessingParams.builder()
+      .outFileName(outFileName)
+      .writer(writer)
+      .ordersProcessor(ordersProcessor)
+      .build();
+  }
+
   @Override
   public void run(String... args) {
-    FileWriter writer;
-    String outFileName;
     ConverterParameters converterParameters = new ConverterParameters();
     CmdLineParser parser = new CmdLineParser(converterParameters);
+    FileProcessingParams fileProcessingParams = null;
 
     try {
       parser.parseArgument(args);
@@ -112,11 +125,6 @@ public class MainExportCommandRunner implements CommandLineRunner {
       if (OutputFormatType.BARS.equals(converterParameters.getOutputFormatType()) && converterParameters.getBarPeriod() == null) {
         throw new IllegalArgumentException("-period parameter required for -type=BARS");
       }
-
-      outFileName = initOutFile(converterParameters, converterParameters.getBatchProcess() ? 0 : -1);
-      writer = new FileWriter(outFileName, true);
-      FileDataWriterImpl dataWriter = new FileDataWriterImpl(writer);
-      IOrdersProcessor ordersProcessor = ordersProcessorFactory.getOrdersProcessor(dataWriter, converterParameters);
 
       if (converterParameters.getBatchProcess()) {
         String fileMask = converterParameters.getInputFile().replace("\\", "/");
@@ -131,22 +139,25 @@ public class MainExportCommandRunner implements CommandLineRunner {
           for (Path entry : dir) {
             log.info("processing batch file: {}", entry);
             if (converterParameters.getOneFileProcess()) {
-              sendFileToProcessor(ordersProcessor, entry.toString(), writer, entryCounter == 0, false);
-            } else {
-              if (entryCounter > 0) {
-                writer = new FileWriter(initOutFile(converterParameters, entryCounter), true);
-                dataWriter.setFileWriter(writer);
+              if (fileProcessingParams == null) {
+                fileProcessingParams = initOutFileParams(converterParameters, entry.getFileName().toString(), 0);
               }
-              sendFileToProcessor(ordersProcessor, entry.toString(), writer, true, true);
+              sendFileToProcessor(fileProcessingParams.getOrdersProcessor(), entry.toString(), fileProcessingParams.getWriter(), entryCounter == 0, false);
+            } else {
+              fileProcessingParams = initOutFileParams(converterParameters, entry.getFileName().toString(), entryCounter);
+              sendFileToProcessor(fileProcessingParams.getOrdersProcessor(), entry.toString(), fileProcessingParams.getWriter(), true, true);
             }
             entryCounter ++;
           }
         }
       } else {
-        sendFileToProcessor(ordersProcessor, converterParameters.getInputFile(), writer, true, true);
+        fileProcessingParams = initOutFileParams(converterParameters, converterParameters.getInputFile(), 0);
+        sendFileToProcessor(fileProcessingParams.getOrdersProcessor(), converterParameters.getInputFile(), fileProcessingParams.getWriter(), true, true);
       }
 
-      ordersProcessor.end();
+      if (fileProcessingParams != null && fileProcessingParams.getOrdersProcessor() != null) {
+        fileProcessingParams.getOrdersProcessor().end();
+      }
 
     } catch (Exception e) {
       log.warn(e.getMessage(), e);

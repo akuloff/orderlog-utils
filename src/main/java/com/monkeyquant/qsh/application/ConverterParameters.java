@@ -10,7 +10,7 @@ import org.kohsuke.args4j.spi.BooleanOptionHandler;
 
 @Getter
 public class ConverterParameters {
-  @Option(name = "-infile", usage = "input filename", required = true)
+  @Option(name = "-infile", usage = "input filename (or file mask for batch processing)", required = true)
   private String inputFile;
 
   @Option(name = "-outfile", usage = "output filename")

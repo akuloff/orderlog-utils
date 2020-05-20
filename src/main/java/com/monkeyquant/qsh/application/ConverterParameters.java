@@ -19,6 +19,9 @@ public class ConverterParameters {
   @Option(name = "-type", usage = "output format type", required = true)
   private OutputFormatType outputFormatType;
 
+  @Option(name = "-instr_code", usage = "custom instrument code (replace original from file)")
+  private String instrCode;
+
   @Option(name = "-period", usage = "period for BARS file type", depends = {"-type=BARS"})
   private BarPeriod barPeriod;
 

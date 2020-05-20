@@ -108,16 +108,17 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
             spread
           ));
         } else {
+          String instrCode = !org.springframework.util.StringUtils.isEmpty(this.converterParameters.getInstrCode()) ? this.converterParameters.getInstrCode() : tickData.getInstrument().getCode();
           if (timeFormat == null) {
             writer.write(String.format("%s;%s;%s;%s\n",
-                    tickData.getInstrument().getCode(),
+                    instrCode,
                     dateFormat.format(barDate),
                     getPrices(barData, closeOnly),
                     barData.getValue()     //vol
             ));
           } else {
             writer.write(String.format("%s;%s;%s;%s;%s\n",
-                    tickData.getInstrument().getCode(),
+                    instrCode,
                     dateFormat.format(barDate),
                     timeFormat.format(barDate),
                     getPrices(barData, closeOnly),

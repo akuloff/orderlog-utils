@@ -5,6 +5,7 @@ import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -92,9 +93,11 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
           }
           if (doWrite) {
             String outString = "";
+            String instrCode = !StringUtils.isEmpty(this.converterParameters.getInstrCode()) ? this.converterParameters.getInstrCode() : tickData.getInstrument().getCode();
+
             if (timeQuantMsec > 0 ) {
               //writer.write("symbol;time;count;volume;open;high;low;close;avg\n");
-              outString = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s", tickData.getInstrument().getCode(), dateFormat.format(tickDate),
+              outString = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s", instrCode, dateFormat.format(tickDate),
                 ticksCollector.getTotalTicks(), ticksCollector.getTotalVolume(),
                 //open;high;low;close;avg
                 summFormat(ticksCollector.getOpenPrice()),
@@ -105,7 +108,7 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
               );
               ticksCollector = new QuantTimeTicksCollector(tickData);
             } else {
-              outString = String.format("%s;%s;%s;%s", tickData.getInstrument().getCode(), dateFormat.format(tickDate), summFormat(tickData.getPrice()), tickData.getAmount());
+              outString = String.format("%s;%s;%s;%s", instrCode, dateFormat.format(tickDate), summFormat(tickData.getPrice()), tickData.getAmount());
               if (converterParameters.getSaveTradeId()) {
                 outString = String.format("%s;%s", outString, tickData.getTradeId());
               }

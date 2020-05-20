@@ -6,6 +6,7 @@ import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.IDataWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -99,7 +100,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
             PriceRecord firstAsk = askPrices.get(0);
             PriceRecord firstBid = bidPrices.get(0);
             if ((!firstAsk.equals(lastAsk) || !firstBid.equals(lastBid)) || timeQuantMsec > 0) {
-              StringBuilder outsb = new StringBuilder(String.format("%s;%s;", bookState.getInstrument().getCode(), dateFormat.format(eventDate)));
+              String instrCode = !StringUtils.isEmpty(this.converterParameters.getInstrCode()) ? this.converterParameters.getInstrCode() : bookState.getInstrument().getCode();
+              StringBuilder outsb = new StringBuilder(String.format("%s;%s;", instrCode, dateFormat.format(eventDate)));
               for (int i = 0; i < bookSize; i++) {
                 PriceRecord ask = askPrices.get(i);
                 PriceRecord bid = bidPrices.get(i);
@@ -135,7 +137,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
               if (mqlTick) {
                 outs = String.format(formatTemplate, mqlDateFormat.format(eventDate), mqlTimeFormat.format(eventDate), summFormat(bid.getPrice()), summFormat(ask.getPrice()), summFormat(ask.getPrice()));
               } else {
-                outs = String.format(formatTemplate, bookState.getInstrument().getCode(), dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
+                String instrCode = !StringUtils.isEmpty(this.converterParameters.getInstrCode()) ? this.converterParameters.getInstrCode() : bookState.getInstrument().getCode();
+                outs = String.format(formatTemplate, instrCode, dateFormat.format(eventDate), summFormat(ask.getPrice()), ask.getValue(), summFormat(bid.getPrice()), bid.getValue());
               }
               writer.write(outs);
               lastAsk = ask;

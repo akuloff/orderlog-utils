@@ -2,6 +2,7 @@ package com.monkeyquant.qsh.application;
 
 import com.monkeyquant.qsh.listeners.BarsCollectorActionListener;
 import com.monkeyquant.qsh.listeners.BookStateWriterActionListener;
+import com.monkeyquant.qsh.listeners.TicksAndBookStateActionListener;
 import com.monkeyquant.qsh.listeners.TicksWriterActionListener;
 import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.IOrdersProcessor;
@@ -23,8 +24,10 @@ public class DefaultOrdersProcessorFactoryImpl implements IOrdersProcessorFactor
     } else if (OutputFormatType.BOOKSTATE.equals(type)) {
       return new OrdersProcessorBookMap(new BookStateWriterActionListener(writer, converterParameters));
     } else if (OutputFormatType.BARS.equals(type)) {
-      return new OrdersProcessorBookMap(new BarsCollectorActionListener(writer, converterParameters));
+      return new OrdersProcessorBookMap(new BarsCollectorActionListener(writer, converterParameters), true);
+    } else if (OutputFormatType.BOOK_AND_TICKS.equals(type)) {
+      return new OrdersProcessorBookMap(new TicksAndBookStateActionListener(writer, converterParameters), true);
     }
-    throw new IllegalArgumentException(String.format("unknow export type: %s", type.name()));
+    throw new IllegalArgumentException(String.format("unknown export type: %s", type.name()));
   }
 }

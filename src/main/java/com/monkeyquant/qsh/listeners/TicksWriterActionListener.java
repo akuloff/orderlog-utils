@@ -2,6 +2,7 @@ package com.monkeyquant.qsh.listeners;
 
 import com.monkeyquant.jte.primitives.interfaces.ITickData;
 import com.monkeyquant.qsh.application.ConverterParameters;
+import com.monkeyquant.qsh.model.CheckTimeResult;
 import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
   //TODO separate classes for mql and not
   private final boolean useMql;
   private final boolean saveTradeId;
-  private QuantTimeTicksCollector ticksCollector = null;
 
   //TODO migrate to Instant
   private Timestamp lastEventTime = null;
@@ -49,11 +49,6 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
   }
 
   @Override
-  protected String defaultDateFormat() {
-    return "yyyy.MM.dd HH:mm:ss.SSS";
-  }
-
-  @Override
   protected boolean checkTime(Date date) {
     if (lastEventTime != null && date.getTime() < lastEventTime.getTime()) {
       log.warn("tick data event is before lastEventDate, event: {},  lastEventDate: {}", new Timestamp(date.getTime()),  lastEventTime);
@@ -74,23 +69,9 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
             mqlDateFormat.format(tickTime), mqlTimeFormat.format(tickTime),
             summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), summFormat(tickData.getPrice()), tickData.getAmount()));
         } else {
-          boolean doWrite = true;
-          Date tickDate = new Date(tickTime.getTime());
-          if (timeQuantMsec > 0) {
-            long currentQuant = (tickTime.getTime() / timeQuantMsec) * timeQuantMsec;
-            if (currentQuant > lastQuant) {
-              lastQuant = currentQuant;
-              tickDate = new Date(currentQuant);
-              doWrite = ticksCollector != null;
-            } else {
-              if (ticksCollector == null) {
-                ticksCollector = new QuantTimeTicksCollector(tickData);
-              } else {
-                ticksCollector.addTick(tickData);
-              }
-              doWrite = false;
-            }
-          }
+          CheckTimeResult checkTimeResult = checkTimeQuant(tickTime, tickData);
+          boolean doWrite = checkTimeResult.isDoWrite();
+          Date tickDate = checkTimeResult.getQuantDate();
           if (doWrite) {
             String outString = "";
             String instrCode = !StringUtils.isEmpty(this.converterParameters.getInstrCode()) ? this.converterParameters.getInstrCode() : tickData.getInstrument().getCode();

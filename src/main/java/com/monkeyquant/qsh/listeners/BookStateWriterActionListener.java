@@ -64,10 +64,6 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
     log.info("total events: {}", totalEvents);
   }
 
-  @Override
-  protected String defaultDateFormat() {
-    return "yyyy.MM.dd HH:mm:ss.SSS";
-  }
 
   @Override
   public void onBookChange(BookStateEvent bookStateEvent) {

@@ -30,7 +30,7 @@ public class MainExportCommandRunner implements CommandLineRunner {
   private IOrdersProcessorFactory ordersProcessorFactory;
 
   private static void processInputFile(IOrdersProcessor ordersProcessor, String inputFileName, boolean init) throws Exception {
-    QshReaderFactory qshReaderFactory = new QshReaderFactory();
+    QshReaderFactory<OrdersLogRecord> qshReaderFactory = new QshReaderFactory<>();
     Iterator<OrdersLogRecord> ordersLogRecordIterator = qshReaderFactory.openPath(inputFileName);
     if (init) {
       ordersProcessor.init();

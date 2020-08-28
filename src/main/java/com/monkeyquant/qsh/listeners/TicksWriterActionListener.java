@@ -17,8 +17,6 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
   private final boolean useMql;
   private final boolean saveTradeId;
 
-  //TODO migrate to Instant
-  private Timestamp lastEventTime = null;
 
   public TicksWriterActionListener(IDataWriter writer, ConverterParameters converterParameters) {
     super(writer, converterParameters);
@@ -48,15 +46,6 @@ public class TicksWriterActionListener extends MoscowTimeZoneListenerWithTimeQua
     }
   }
 
-  @Override
-  protected boolean checkTime(Date date) {
-    if (lastEventTime != null && date.getTime() < lastEventTime.getTime()) {
-      log.warn("tick data event is before lastEventDate, event: {},  lastEventDate: {}", new Timestamp(date.getTime()),  lastEventTime);
-      return false;
-    }
-    lastEventTime = new Timestamp(date.getTime());
-    return super.checkTime(date);
-  }
 
   @Override
   public void onNewTick(TickDataEvent tickDataEvent) {

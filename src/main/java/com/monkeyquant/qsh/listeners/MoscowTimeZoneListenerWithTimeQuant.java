@@ -15,6 +15,19 @@ public abstract class MoscowTimeZoneListenerWithTimeQuant extends MoscowTimeZone
   protected long lastQuant = 0;
   protected QuantTimeTicksCollector ticksCollector = null;
 
+  //TODO migrate to Instant
+  private Timestamp lastEventTime = null;
+
+  @Override
+  protected boolean checkTime(Date date) {
+    if (lastEventTime != null && date.getTime() < lastEventTime.getTime()) {
+      log.warn("data event is before lastEventDate, event: {},  lastEventDate: {}", new Timestamp(date.getTime()),  lastEventTime);
+      return false;
+    }
+    lastEventTime = new Timestamp(date.getTime());
+    return super.checkTime(date);
+  }
+
   @Override
   protected String defaultDateFormat() {
     return "yyyy.MM.dd HH:mm:ss.SSS";

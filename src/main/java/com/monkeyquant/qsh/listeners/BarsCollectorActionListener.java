@@ -92,7 +92,7 @@ public class BarsCollectorActionListener extends MoscowTimeZoneActionListener {
         IBarData barData = barsSaver.getCollector().getBarsList().get(barsSaver.getCollector().getBarsList().size() - 1);
 
         Date barDate;
-        if (timeOfBar.equals(TimeOfBar.close)) {
+        if (timeOfBar.equals(TimeOfBar.CLOSE)) {
           barDate = barData.getCloseDate();
         } else {
           barDate = barData.getOpenDate();

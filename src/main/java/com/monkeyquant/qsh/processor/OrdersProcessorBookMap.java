@@ -40,7 +40,7 @@ public class OrdersProcessorBookMap extends AbstractOrdersProcessorWithListener{
     @Override
     public void end() throws Exception {
         super.end();
-        log.info("max map size: {}, map stats - putCount: {}, setCount: {}, getCount: {}", maxMapSize, bstate.getPutCount(), bstate.getSetCount(), bstate.getGetCount());
+        log.debug("max map size: {}, map stats - putCount: {}, setCount: {}, getCount: {}", maxMapSize, bstate.getPutCount(), bstate.getSetCount(), bstate.getGetCount());
     }
 
     public OrdersProcessorBookMap(boolean sendTicks) {

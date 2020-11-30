@@ -26,7 +26,7 @@ public class ConverterParameters {
   private BarPeriod barPeriod;
 
   @Option(name = "-bartime", usage = "source for bar time")
-  private TimeOfBar barTime = TimeOfBar.close;
+  private TimeOfBar barTime = TimeOfBar.CLOSE;
 
   @Option(name = "-usebook", handler = BooleanOptionHandler.class, usage = "use book states for bars collect instead of ticks")
   private Boolean useBookState = false;
@@ -67,12 +67,12 @@ public class ConverterParameters {
   @Option(name = "-timefilter", usage = "market time filter, default = NONE")
   private TimeFilter timeFilter = TimeFilter.NONE;
 
-  @Option(name = "-batch", handler = BooleanOptionHandler.class, usage = "batch files procesing (from file mask)")
+  @Option(name = "-batch", handler = BooleanOptionHandler.class, usage = "batch files processing (from file mask)")
   private Boolean batchProcess = false;
 
   @Option(name = "-onefile", handler = BooleanOptionHandler.class, usage = "use one file for output (only with batch processing)", depends = {"-batch"})
   private Boolean oneFileProcess = false;
 
-  @Option(name = "-book_size", usage = "size of book to export for BOOKSTATE, when 0 - only best ask/bid")
-  private Integer bookSize = 0;
+  @Option(name = "-book_size", usage = "size of book to export for BOOKSTATE, when 1 - only best ask/bid")
+  private Integer bookSize = 1;
 }

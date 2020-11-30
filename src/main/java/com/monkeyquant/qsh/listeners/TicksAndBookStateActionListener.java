@@ -9,7 +9,7 @@ import com.monkeyquant.qsh.model.CheckTimeResult;
 import com.monkeyquant.qsh.model.IDataWriter;
 import com.monkeyquant.qsh.model.TickDataEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.Date;

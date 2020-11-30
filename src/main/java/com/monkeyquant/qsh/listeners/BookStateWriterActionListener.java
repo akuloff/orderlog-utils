@@ -6,7 +6,7 @@ import com.monkeyquant.qsh.application.ConverterParameters;
 import com.monkeyquant.qsh.model.BookStateEvent;
 import com.monkeyquant.qsh.model.IDataWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -27,8 +27,11 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
     this.mqlTick = converterParameters.getUseMql();
     this.writeZero = converterParameters.getWriteZero();
     this.bookSize = converterParameters.getBookSize();
-    if (bookSize > 0 && mqlTick) {
-      throw new IllegalArgumentException("MQL format incopatible with book_size > 0");
+    if (bookSize < 1) {
+      throw new IllegalArgumentException("book_size must be greater than 0");
+    }
+    if (bookSize > 1 && mqlTick) {
+      throw new IllegalArgumentException("MQL format incompatible with book_size > 1");
     }
   }
 
@@ -39,7 +42,7 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
         writer.write("<DATE>;<TIME>;<BID>;<ASK>;<LAST>;<VOLUME>\n"); //format
         formatTemplate = "%s;%s;%s;%s;%s;1\n";
       } else {
-        if (bookSize > 0) {
+        if (bookSize > 1) {
           StringBuilder sb = new StringBuilder("symbol;time;");
           StringBuilder sbf = new StringBuilder("%s;%s;");
           for (int i = 1; i < bookSize + 1; i++) {
@@ -87,9 +90,8 @@ public class BookStateWriterActionListener extends MoscowTimeZoneListenerWithTim
       List<PriceRecord> askPrices;
       List<PriceRecord> bidPrices;
 
-
       if (doWrite) {
-        if (bookSize > 0) {
+        if (bookSize > 1) {
           askPrices = bookState.getAskPositions(bookSize);
           bidPrices = bookState.getBidPositions(bookSize);
           if (askPrices.size() >= bookSize && bidPrices.size() >= bookSize) {
